@@ -1,0 +1,263 @@
+<style type="text/css" scoped>
+	.vue-collapse-item__content {
+		overflow: auto;
+	}
+
+	#collapseBtn {
+		display: none
+	}
+
+	@media (max-width:767px) {
+		#collapseBtn {
+			display: block
+		}
+
+		#panelSearchCondition {
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			width: 75%;
+			left: -110%;
+			transition: .5s;
+			z-index: 20;
+		}
+
+		#panelSearchCondition.search_panel_collapse {
+			left: 0px;
+			margin: 0px;
+		}
+
+		#panelDetail {
+			position: relative;
+			top: -7px;
+			width: 100%;
+			height: 100%;
+			overflow-y: auto;
+			overflow-x: hidden;
+			z-index: 10;
+		}
+	}
+</style>
+<template>
+	<div v-cloak class="page" v-loading="pageLoading" :vue-loading-text="messageutil.get('page.loading.text')">
+		<escort-form ref="form" id="form" :model="form">
+			<escort-row id="vueRow_OnL1O" ref="vueRow_OnL1O">
+				<escort-col :md="{span:8}" :sm="{span:10}" :lg="{span:8}" :xs="{span:24}">
+					<escort-collapse title="部门" :cls="panelSearchConditionClass" id="panelSearchCondition" ref="panelSearchCondition">
+						<template slot="title">
+							<escort-row id="vueRow_14QCWo" ref="vueRow_14QCWo">
+								<escort-col align="center" :inline="false" :md="{span:16}" :sm="{span:16}" :lg="{span:16}" :xs="{span:16}">
+									<escort-input :label-display="false" size="small" id="searchCondition" ref="searchCondition" v-model="form.searchCondition" prop="searchCondition"></escort-input>
+								</escort-col>
+								<escort-col align="center" :md="{span:8}" :sm="{span:8}" :lg="{span:8}" :xs="{span:8}">
+									<escort-button type="success" size="small" id="searchBtn" ref="searchBtn" @click="searchBtnClick"> 检索 </escort-button>
+								</escort-col>
+							</escort-row>
+						</template>
+						<escort-list :pageable="true" :height="extraVariables.data.conditionHeight" id="deptDatatable" ref="deptDatatable" @select="deptDatatableSelect" :data="dsDataTable.data" data-field="content" :datasource="dsDataTable" :page-size="25" small>
+							<template slot-scope="{ item }">
+								<div>
+									<div style='margin: 5px; margin-left: 20px; margin-bottom: 3px;'>
+										<div class="col-md-6 col-sm-6 col-xs-6" style="font-size:15px;float:left;">
+											<div>{{item.deptNm}}</div>
+										</div>
+										<div class="col-md-6 col-sm-6 col-xs-6" style="font-size:14px;text-align:right;float:right;">
+											<span v-if="item.FlagId=='false'" style='background:#F5F5DC;color:#F00'>{{item.FlagNm}}</span>
+										</div>
+									</div>
+									<div style='margin-left: 55px;margin-bottom: 3px; font-size:15px;clear:left;'>
+										<div class="col-md-12 col-sm-12 col-xs-12" style="margin-top: 10px">
+											<div>责任人：{{item.person}}</div>
+										</div>
+										<div class="col-md-12 col-sm-12 col-xs-12">
+											<div>成立日：{{item.date}}</div>
+										</div>
+									</div>
+								</div>
+							</template>
+						</escort-list>
+					</escort-collapse>
+				</escort-col>
+				<escort-col :md="{span:16}" :sm="{span:14}" :lg="{span:16}" :xs="{span:24}">
+					<escort-collapse title="详细信息" cls="panelDetail" id="panelDetail" ref="panelDetail">
+						<template slot="title">
+							<escort-row id="vueRow_DE7" ref="vueRow_DE7">
+								<escort-col align="right" :inline="true" :md="{span:24}" :sm="{span:24}" :lg="{span:24}" :xs="{span:24}">
+									<escort-button type="info" size="small" :circle="false" icon="vue-icon-menu" cls="collapseBtn md-client-left-button" id="collapseBtn" ref="collapseBtn" @click="collapseBtnClick">
+									</escort-button>
+								</escort-col>
+							</escort-row>
+						</template>
+						<escort-input label-width="40%" label-value="部门编号：" :disabled="true" id="form_deptNo" ref="form_deptNo" v-model="form.form_deptNo" prop="form_deptNo" :style_="{ width : '50%' }"></escort-input>
+						<escort-input label-width="40%" label-value="部门名称：" :disabled="true" id="form_deptNm" ref="form_deptNm" v-model="form.form_deptNm" prop="form_deptNm" :style_="{ width : '50%' }"></escort-input>
+						<escort-input label-width="40%" label-value="负责人：" :disabled="true" id="form_person" ref="form_person" v-model="form.form_person" prop="form_person" :style_="{ width : '50%' }"></escort-input>
+						<escort-datetime-picker label-width="40%" label-value="成立日：" :disabled="true" id="form_date" ref="form_date" v-model="form.form_date" prop="form_date" :style_="{ width : '50%' }">
+						</escort-datetime-picker>
+						<escort-textarea :style_="{ width : '50%' }" label-value="部门说明：" label-width="40%" :disabled="true" id="form_description" ref="form_description" v-model="form.form_description" prop="form_description">
+						</escort-textarea>
+					</escort-collapse>
+				</escort-col>
+			</escort-row>
+		</escort-form>
+	</div>
+</template>
+<script type="text/javascript">
+	var pageMixins;
+	(function() {
+		var pageMixinMap = {};
+		pageMixinMap.event = {
+			methods: {
+				searchBtnClick: function(event) {
+					debugger
+					this.dsDataTable.retrieve();
+				},
+				deptDatatableSelect: function(item, index) {
+					var itemData = this.dsDataTable.data.content[index];
+					this.form.form_deptNo = itemData.deptNo;
+					this.form.form_deptNm = itemData.deptNm;
+					this.form.form_person = itemData.person;
+					this.form.form_date = itemData.date;
+					this.form.form_description = itemData.description;
+					this.collapseConditionPanel();
+				},
+				collapseBtnClick: function(event) {
+					this.collapseConditionPanel();
+				},
+				dsDataTableParameter: function(tempParams) {
+					return this.getSearchParameters();
+				}
+			}
+		};
+		pageMixinMap.manualSeperate = {
+			data: function() {
+				return {
+					panelSearchConditionClass: 'panelSearchCondition',
+				};
+			},
+			created: function() {
+				/*
+this.dsDataTable = {
+    content: [{}],
+    totalElements: 0
+};
+*/
+			},
+			mounted: function() {
+				// var self = this;
+				// VueUtil.addResizeListener(document.body, function(){
+				//     self.pageHeight = document.body.clientHeight;
+				//     self.extraVariables.data.conditionHeight = self.pageHeight - 110;
+				//     self.$refs.panelDetail.$el
+				//         .getElementsByClassName('vue-collapse-item__content')[0].style.height 
+				//         = (self.pageHeight - 58)+"px";
+				// });
+				var self = this;
+				window.onresize = function() {
+					self.autoHeight();
+				};
+				self.autoHeight();
+			},
+			methods: {
+				getSearchParameters: function() {
+					debugger
+					var searchParams = this.$refs.deptDatatable.getPageParams();
+					searchParams.deptNm = this.form.searchCondition;
+					return searchParams;
+				},
+				collapseConditionPanel: function() {
+					var clientWidth = document.body.clientWidth;
+					if (clientWidth < 768) {
+						if (this.panelSearchConditionClass == "panelSearchCondition") {
+							this.panelSearchConditionClass = "panelSearchCondition search_panel_collapse";
+						} else {
+							this.panelSearchConditionClass = "panelSearchCondition";
+						}
+					}
+				},
+				getHeightExceptEl: function(container, el) {
+					function getVerticalPaddingHeight(el) {
+						return parseInt(VueUtil.getStyle(el, 'padding-top')) + parseInt(VueUtil.getStyle(el, 'padding-bottom'));
+					}
+
+					function getVerticalBorderHeight(el) {
+						return parseInt(VueUtil.getStyle(el, 'border-top')) + parseInt(VueUtil.getStyle(el, 'border-bottom'));
+					}
+					if (!container || !el || !container.contains(el)) {
+						return -1;
+					}
+					if (el === container) {
+						return 0;
+					}
+					var parentEl = el.parentElement;
+					var parentVerticalPadding = getVerticalPaddingHeight(parentEl);
+					var parentVerticalborder = getVerticalBorderHeight(parentEl);
+					var siblings = parentEl.children;
+					var siblingHeight = 0;
+					VueUtil.loop([].slice.call(siblings, 0), function(sibling) {
+						if (sibling !== el) {
+							siblingHeight += sibling.offsetHeight;
+						}
+					});
+					var parentHeightExceptEl = parentVerticalborder + parentVerticalPadding + siblingHeight;
+					if (container === parentEl) {
+						return parentHeightExceptEl;
+					} else {
+						return parentHeightExceptEl + this.getHeightExceptEl(container, parentEl);
+					}
+				},
+				autoHeight: function() {
+					var self = this;
+					var frameHeight = 0; //Compatible height calculation of page and page template
+					if (document.getElementsByClassName('navbar').length > 0) {
+						frameHeight += document.getElementsByClassName('navbar')[0].offsetHeight;
+					}
+					if (document.getElementsByClassName('tags-view-container').length > 0) {
+						frameHeight += document.getElementsByClassName('tags-view-container')[0].offsetHeight;
+					}
+					self.pageHeight = document.body.clientHeight;
+					var conditionPanelHeightExceptDatatable = self.getHeightExceptEl(self.$refs.panelSearchCondition.$el, self.$refs.panelSearchCondition.$el.querySelector('#deptDatatable'));
+					var pagerHeight = self.$refs.panelSearchCondition.$el.querySelector('.vue-xtable-pager').offsetHeight;
+					self.extraVariables.data.conditionHeight = self.pageHeight - frameHeight - conditionPanelHeightExceptDatatable - pagerHeight;
+					var detailPanelHeightExceptContent = self.getHeightExceptEl(self.$refs.panelDetail.$el, self.$refs.panelDetail.$el.querySelector('.vue-collapse-item__content'));
+					self.$refs.panelDetail.$el.getElementsByClassName('vue-collapse-item__content')[0].style.height = (self.pageHeight - frameHeight - detailPanelHeightExceptContent) + "px";
+				}
+			}
+		};
+		pageMixinMap.auto = {
+			data: function() {
+				return {
+					pageLoading: false,
+					form: {
+						searchCondition: "",
+						form_deptNo: "",
+						form_deptNm: "",
+						form_person: "",
+						form_date: "",
+						form_description: ""
+					},
+					dsDataTable: this.getDataSource({
+						url: "/applications/sample/searchDatasVue.json",
+						type: "POST",
+						parameter: this.dsDataTableParameter
+					}),
+					extraVariables: this.getDataSource({
+						type: "POST",
+						localData: {
+							conditionHeight: 0,
+							detailHeight: 0
+						}
+					})
+				};
+			},
+			mounted: function() {
+				this.dsDataTable.retrieve();
+				this.extraVariables.retrieve();
+			}
+		};
+		pageMixins = getPageMixins(pageMixinMap);
+	})();
+	module.exports = {
+		mixins: pageMixins,
+		name: "test02"
+	};
+</script>
