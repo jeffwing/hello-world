@@ -1,0 +1,201 @@
+<style type="text/css" scoped>
+	.vue-number-input {
+		width: 100%
+	}
+</style>
+<template>
+	<div v-cloak class="page" v-loading="pageLoading" :vue-loading-text="messageutil.get('page.loading.text')">
+		<escort-form ref="form" id="form" :model="form">
+			<escort-datetime-picker type="datetimerange" label-value="1" id="vueDateTimePicker_7xHpt" ref="vueDateTimePicker_7xHpt" v-model="form.datafieldvueDateTimePicker_7xHpt" prop="datafieldvueDateTimePicker_7xHpt">
+			</escort-datetime-picker>
+			<escort-card-list :data="ds.data" :draggable="true" :lg="3" :xl="4" :md="2" :show-header="true" id="vueCardList_5XYEr" ref="vueCardList_5XYEr">
+				<template slot="header">
+					<escort-text text="Text" id="vueText_Nab91" ref="vueText_Nab91" :style_="{ width : '100%' }">
+					</escort-text>
+				</template>
+				<template slot="empty-content">
+					<p><strong>暂无数据111</strong></p>
+				</template>
+				<template v-slot="scope">
+					<escort-row id="vueRow_66LtG" ref="vueRow_66LtG">
+						<escort-col :md="{span:12}">
+							<escort-input :prop="'list['+ (scope.index -1) + '].name'" label-value="姓名" :show-message="true" id="vueInputBox_66E0C" ref="vueInputBox_66E0C" v-model="scope.data.name" :rules="rules.vueInputBox_66E0CRules"></escort-input>
+						</escort-col>
+						<escort-col :md="{span:12}">
+							<escort-input label-value="部门" id="vueInputBox_Z5Oe6" ref="vueInputBox_Z5Oe6" v-model="scope.data.department"></escort-input>
+						</escort-col>
+					</escort-row>
+					<escort-row id="vueRow_Z7gr8" ref="vueRow_Z7gr8">
+						<escort-col :md="{span:12}">
+							<escort-number-input label-value="年龄" id="vueNumberInput_67soB" ref="vueNumberInput_67soB" v-model="scope.data.age"></escort-number-input>
+						</escort-col>
+						<escort-col :md="{span:12}">
+							<escort-datetime-picker value-format="yyyyMMdd" label-value="入职日期" id="vueDateTimePicker_675RT" ref="vueDateTimePicker_675RT" v-model="scope.data.date">
+							</escort-datetime-picker>
+						</escort-col>
+					</escort-row>
+					<escort-row id="vueRow_4mNUcE" ref="vueRow_4mNUcE">
+						<escort-col :md="{span:12}">
+							<escort-form-item id="vueFormItem_r50WU" ref="vueFormItem_r50WU">
+								<escort-text :text="scope.data.name" id="vueText_r51oH" ref="vueText_r51oH" :style_="{ width : '100%' }">
+								</escort-text>
+							</escort-form-item>
+						</escort-col>
+						<escort-col :md="{span:12}">
+						</escort-col>
+					</escort-row>
+				</template>
+			</escort-card-list>
+			<escort-separator id="separator_67ME5" ref="separator_67ME5">
+			</escort-separator>
+			<escort-separator id="separator_Zgbkw" ref="separator_Zgbkw">
+			</escort-separator>
+			<escort-card-list :data="ds.data" :draggable="true" :show-index="true" height="441px" :show-header="true" id="vueList_67GBs" ref="vueList_67GBs" :list-mode="true">
+				<template slot="header">
+					<escort-row id="vueRow_67Yeb" ref="vueRow_67Yeb">
+						<escort-col :md="{span:12}">
+							<escort-text text="姓名" id="vueText_6802Y" ref="vueText_6802Y" :style_="{ width : '100%' }">
+							</escort-text>
+						</escort-col>
+						<escort-col :md="{span:12}">
+							<escort-text text="部门" id="vueText_ZiIBY" ref="vueText_ZiIBY" :style_="{ width : '100%' }">
+							</escort-text>
+						</escort-col>
+					</escort-row>
+					<escort-row id="vueRow_3sZkWQ" ref="vueRow_3sZkWQ">
+						<escort-col :md="{span:12}">
+							<escort-text text="年龄" id="vueText_3sZkXm" ref="vueText_3sZkXm" :style_="{ width : '100%' }">
+							</escort-text>
+						</escort-col>
+						<escort-col :md="{span:12}">
+							<escort-text text="入职日期" id="vueText_3sZkXS" ref="vueText_3sZkXS" :style_="{ width : '100%' }">
+							</escort-text>
+						</escort-col>
+					</escort-row>
+				</template>
+				<template slot="empty-content">
+					<div>ddd</div>
+				</template>
+				<template v-slot="scope">
+					<escort-row id="vueRow_ZgWpu" ref="vueRow_ZgWpu">
+						<escort-col :md="{span:12}">
+							<escort-input label-value="姓名" :label-display="false" id="vueInputBox_ZgWpF" ref="vueInputBox_ZgWpF" v-model="scope.data.name"></escort-input>
+						</escort-col>
+						<escort-col :md="{span:12}">
+							<escort-input label-value="部门" :label-display="false" id="vueInputBox_ZgWpQ" ref="vueInputBox_ZgWpQ" v-model="scope.data.department"></escort-input>
+						</escort-col>
+					</escort-row>
+					<escort-row id="vueRow_ZkdCg" ref="vueRow_ZkdCg">
+						<escort-col :md="{span:12}">
+							<escort-number-input label-value="年龄" :label-display="false" id="vueNumberInput_ZkdCr" ref="vueNumberInput_ZkdCr" v-model="scope.data.age"></escort-number-input>
+						</escort-col>
+						<escort-col :md="{span:12}">
+							<escort-datetime-picker value-format="yyyyMMdd" label-value="入职日期" :label-display="false" id="vueDateTimePicker_ZkdCC" ref="vueDateTimePicker_ZkdCC" v-model="scope.data.date">
+							</escort-datetime-picker>
+						</escort-col>
+					</escort-row>
+					<escort-row id="vueRow_4lQ1Uy" ref="vueRow_4lQ1Uy">
+						<escort-col :md="{span:8}">
+							<escort-text :text="scope.data.name" id="vueText_qZ3Nh" ref="vueText_qZ3Nh" :style_="{ width : '100%' }">
+							</escort-text>
+						</escort-col>
+						<escort-col :md="{span:8}">
+							<escort-text :text="scope.data.date" id="vueText_4lQMho" ref="vueText_4lQMho" :style_="{ width : '100%' }">
+							</escort-text>
+						</escort-col>
+						<escort-col :md="{span:8}">
+							<escort-text :text="scope.data.date" id="vueText_4mBn5I" ref="vueText_4mBn5I" :style_="{ width : '100%' }">
+							</escort-text>
+						</escort-col>
+					</escort-row>
+					<escort-row id="vueRow_4n4Am4" ref="vueRow_4n4Am4">
+						<escort-col :md="{span:8}">
+							<escort-text :text="scope.data.name" id="vueText_4n4AmT" ref="vueText_4n4AmT" :style_="{ width : '100%' }">
+							</escort-text>
+						</escort-col>
+						<escort-col :md="{span:8}">
+							<escort-text :text="scope.data.date" id="vueText_4n4T9y" ref="vueText_4n4T9y" :style_="{ width : '100%' }">
+							</escort-text>
+						</escort-col>
+						<escort-col :md="{span:8}">
+							<escort-text :text="scope.data.date" id="vueText_4n4AnG" ref="vueText_4n4AnG" :style_="{ width : '100%' }">
+							</escort-text>
+						</escort-col>
+					</escort-row>
+				</template>
+			</escort-card-list>
+		</escort-form>
+	</div>
+</template>
+<script type="text/javascript">
+	var pageMixins;
+	(function() {
+		var pageMixinMap = {};
+		pageMixinMap.event = {
+			methods: {
+				dsSuccess: function() {
+					this.form.list = this.ds.data;
+				}
+			}
+		};
+		pageMixinMap.manualSeperate = {
+			data: function() {
+				return {
+					form: {
+						list: []
+					},
+					dates: [new Date(), undefined]
+				};
+			},
+			methods: {
+				handleClick: function() {
+					debugger;
+					this
+				}
+			}
+		};
+		pageMixinMap.auto = {
+			data: function() {
+				return {
+					pageLoading: false,
+					form: {
+						datafieldvueDateTimePicker_7xHpt: []
+					},
+					ds: this.getDataSource({
+						type: "POST",
+						localData: [
+							// {name: '小陈', department: '管理部', age: 25, date: '20201112'},
+							// {name: '小郭', department: '技术部', age: 25, date: '20201212'},
+							// {name: '小林', department: '管理部', age: 30, date: '20200113'},
+							// {name: '小郑', department: '技术部', age: 25, date: '20200512'},
+						],
+						success: this.dsSuccess
+					}),
+					rules: {
+						vueInputBox_66E0CRules: [{
+							required: true,
+							message: messageutil.get('validation.error.required'),
+							trigger: "blur"
+						}]
+					}
+				};
+			},
+			beforeMount: function() {
+				this.dataInit();
+			},
+			mounted: function() {
+				this.ds.retrieve();
+			},
+			methods: {
+				dataInit: function() {
+					Vue.set(this.form, 'datafieldvueDateTimePicker_7xHpt', this.dates);
+				}
+			}
+		};
+		pageMixins = getPageMixins(pageMixinMap);
+	})();
+	module.exports = {
+		mixins: pageMixins,
+		name: "cardlist-card"
+	};
+</script>
