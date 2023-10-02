@@ -1,0 +1,127 @@
+<style type="text/css" scoped>
+</style>
+<template>
+	<div v-cloak class="page" v-loading="pageLoading" :vue-loading-text="messageutil.get('page.loading.text')">
+		<escort-form ref="form" id="form" :model="form">
+			<escort-input @input="onProjectNameInput" label-value="项目名" id="projectName" ref="projectName" v-model="form.projectName" prop="projectName"></escort-input>
+			<escort-xgrid :height="gridHeight" id="grid" ref="grid" @cell-dblclick="gridCellDblclick" :data="projectList.data" data-field="data" :datasource="projectList">
+				<escort-xgrid-column prop="projectCode" text="项目代码" min-width="200px" render-name="input">
+				</escort-xgrid-column>
+				<escort-xgrid-column prop="projectName" text="项目名" min-width="200px" render-name="input">
+				</escort-xgrid-column>
+				<escort-xgrid-column render-name="date" prop="createTime" align="center" text="项目启动时间" width="140px">
+				</escort-xgrid-column>
+				<escort-xgrid-column render-name="select" :template="true" :edit-render-attrs-options="projectStatusList.data" :edit-render-attrs-datasource="projectStatusList" prop="status" align="center" text="状态" width="100px">
+					<template slot="default" slot-scope="scope">
+						<escort-xgrid-column-display :row="scope.row" field="status" widget-type="select" align="center" :options="projectStatusList.data">
+						</escort-xgrid-column-display>
+					</template>
+				</escort-xgrid-column>
+			</escort-xgrid>
+		</escort-form>
+	</div>
+</template>
+<script type="text/javascript">
+	var pageMixins;
+	(function() {
+		var pageMixinMap = {};
+		pageMixinMap.event = {
+			methods: {
+				gridCellDblclick: function(obj, event) {
+					var projectName = obj.row.projectName;
+					this.$emit('close', {
+						projectName: projectName
+					});
+				},
+				projectListParameter: function(tempParams) {
+					return {
+						projectName: this.form.projectName
+					};
+				}
+			}
+		};
+		pageMixinMap.manualSeperate = {
+			data: function() {
+				return {
+					gridHeight: 0
+				};
+			},
+			created: function() {
+				var self = this;
+				window.onresize = function() {
+					self.autoSetGridHeight();
+				};
+			},
+			mounted: function() {
+				this.autoSetGridHeight();
+			},
+			methods: {
+				onProjectNameInput: function(inputValue) {
+					this.projectList.retrieve();
+				},
+				autoSetGridHeight: function() {
+					var winHeight = 0;
+					if (window.innerHeight) {
+						winHeight = window.innerHeight;
+					} else if ((document.body) && (document.body.offsetHeight)) {
+						winHeight = document.body.offsetHeight;
+					}
+					if (document.documentElement && document.documentElement.offsetHeight) {
+						winHeight = document.documentElement.offsetHeight;
+					}
+					debugger;
+
+					function getStyleValue(el, prop) {
+						var computedStyle;
+						if (window.getComputedStyle) {
+							computedStyle = getComputedStyle(el, null);
+						} else {
+							computedStyle = div.currentStyle; //兼容IE的写法
+						}
+						return computedStyle[prop];
+					}
+					var conditionHeight = this.$refs.projectName.$el.offsetHeight + parseInt(getStyleValue(this.$refs.projectName.$el, 'marginBottom'));
+					var formPadding = parseInt(getStyleValue(this.$refs.projectName.$el.parentElement, 'paddingTop')) + parseInt(getStyleValue(this.$refs.projectName.$el.parentElement, 'paddingBottom'));
+					this.gridHeight = winHeight - formPadding - conditionHeight;
+				}
+			}
+		};
+		pageMixinMap.auto = {
+			data: function() {
+				return {
+					pageLoading: false,
+					form: {
+						projectName: ""
+					},
+					projectList: this.getDataSource({
+						url: "/xgrid/projectList.json",
+						type: "POST",
+						parameter: this.projectListParameter
+					}),
+					projectStatusList: this.getDataSource({
+						type: "POST",
+						localData: [{
+							value: 1,
+							label: '启动中'
+						}, {
+							value: 2,
+							label: '进行中'
+						}, {
+							value: 3,
+							label: '已完成'
+						}]
+					})
+				};
+			},
+			mounted: function() {
+				this.projectList.retrieve();
+				this.projectStatusList.retrieve();
+			}
+		};
+		pageMixins = getPageMixins(pageMixinMap);
+	})();
+	module.exports = {
+		mixins: pageMixins,
+		name: "comprehensiveEditSampleProjectListAside"
+	};
+</script>

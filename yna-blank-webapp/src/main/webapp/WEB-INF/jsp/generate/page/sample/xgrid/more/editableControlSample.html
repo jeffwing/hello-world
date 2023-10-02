@@ -1,0 +1,344 @@
+<style type="text/css" scoped>
+	.vue-form.escort-vue.escort-vue-form {
+		padding: 8px;
+	}
+
+	.uneditable-row:not(.row--current) {
+		background: #ddd;
+	}
+
+	.uneditable-row.row--current {
+		background: #eee;
+	}
+
+	.uneditable-grid .vue-xtable-body--row:not(.row--current) {
+		background: #ddd;
+	}
+
+	.uneditable-grid .vue-xtable-body--row.row--current {
+		background: #eee;
+	}
+
+	.vue-xtable-body--row:not(.row--current) .uneditable-cell {
+		background: #ddd;
+	}
+
+	.vue-xtable-body--row.row--current .uneditable-cell {
+		background: #eee;
+	}
+
+	.uneditable-grid .vue-xtable-body--row .vue-xtable-body--column.col--selected {
+		background: #eee;
+	}
+
+	.vue-xtable-body--row.uneditable-row .vue-xtable-body--column.col--selected {
+		background: #eee;
+	}
+</style>
+<template>
+	<div v-cloak class="page" v-loading="pageLoading" :vue-loading-text="messageutil.get('page.loading.text')">
+		<escort-form ref="form" id="form" :model="form">
+			<escort-collapse title="条件部" :collapse="true" id="vuePanel_vzHCb" ref="vuePanel_vzHCb" @change="vuePanel_vzHCbChange">
+				<escort-row id="vueRow_vuo28" ref="vueRow_vuo28">
+					<escort-col align="left" :inline="true" :md="{span:14}" :sm="{span:18}">
+						<escort-input label-value="姓名:" label-width="60px" id="vueInputBox_vuGkz" ref="vueInputBox_vuGkz" v-model="form.userName" prop="userName" :style_="{ width : '200px' }"></escort-input>
+					</escort-col>
+					<escort-col align="right" :inline="true" :md="{span:10}" :sm="{span:6}">
+						<escort-button type="primary" id="vueButton_vxQ3m" ref="vueButton_vxQ3m" @click="vueButton_vxQ3mClick"> 查询 </escort-button>
+					</escort-col>
+				</escort-row>
+			</escort-collapse>
+			<escort-xgrid :pageable="true" :height="gridHeight" :cls="this.gridEditable?'':'uneditable-grid'" id="vueXgrid_voESN" ref="vueXgrid_voESN" :data="grid.data" data-field="datas" :datasource="grid" total-field="total" :cell-class-name="vueXgrid_voESNCellClassName" :row-class-name="vueXgrid_voESNRowClassName" :rules="vueXgrid_voESNRules" :edit-config="{ trigger: 'dblclick' , activeMethod: vueXgrid_voESNActiveMethod }" :toolbar="{ id:'vueXgrid_voESNToolbar' ,import: true ,export: true ,refresh: true }">
+				<template slot="buttons">
+					<escort-button size="small" id="toggleGridEdit" ref="toggleGridEdit" @click="toggleGridEditClick"> Grid锁定/启用编辑 </escort-button>
+					<escort-button size="small" id="toggleRowEdit" ref="toggleRowEdit" @click="toggleRowEditClick"> 选中行锁定/启用编辑 </escort-button>
+					<escort-button size="small" id="lockSalary" ref="lockSalary" @click="lockSalaryClick"> 月薪列锁定/启用编辑 </escort-button>
+					<escort-button size="small" :disabled="!this.gridEditable" id="vueButton_XZP8y" ref="vueButton_XZP8y" @click="vueButton_XZP8yClick"> 插入行 </escort-button>
+					<escort-button size="small" :disabled="!this.gridEditable" id="vueButton_XZOMn" ref="vueButton_XZOMn" @click="vueButton_XZOMnClick"> 删除选中行 </escort-button>
+					<escort-button size="small" :disabled="!this.gridEditable" id="vueButton_XZOnh" ref="vueButton_XZOnh" @click="vueButton_XZOnhClick"> 提交 </escort-button>
+				</template>
+				<escort-xgrid-column align="center" type="checkbox" width="50px">
+				</escort-xgrid-column>
+				<escort-xgrid-column type="index" align="center" width="50px" min-width="50px">
+				</escort-xgrid-column>
+				<escort-xgrid-column prop="personNo" align="center" :uppercase="true" edit-render-default-value="PNO99" text="编号" width="80px" :editable="true" render-name="input">
+				</escort-xgrid-column>
+				<escort-xgrid-column prop="userName" align="center" edit-render-default-value="新增人员" text="姓名" width="80px" :editable="true" render-name="input">
+				</escort-xgrid-column>
+				<escort-xgrid-column render-name="date" edit-render-attrs-type="datetime" prop="datetime" :resizable="true" align="center" edit-render-value-format="yyyy-MM-dd HH:mm:ss" text="登入时间" width="150px" format="ymdt" :editable="true">
+				</escort-xgrid-column>
+				<escort-xgrid-column render-name="textarea" prop="address" :resizable="true" text="住址" min-width="250px" :editable="true">
+				</escort-xgrid-column>
+				<escort-xgrid-column render-name="numeric" :edit-render-attrs-cleave="vueXgrid_voESNSalaryCleave" prop="salary" align="right" :resizable="true" :edit-render-default-value="1000" width="200px" text="月薪" :editable="true">
+				</escort-xgrid-column>
+			</escort-xgrid>
+			<escort-aside :close-on-press-escape="true" :close-on-click-modal="true" id="projectList" ref="projectList" @after-close="projectListAfterClose" src="/comprehensiveEditSampleProjectListAside">
+			</escort-aside>
+		</escort-form>
+	</div>
+</template>
+<script type="text/javascript">
+	var pageMixins;
+	(function() {
+		var pageMixinMap = {};
+		pageMixinMap.event = {
+			methods: {
+				vuePanel_vzHCbChange: function() {
+					this.autoSetGridHeight();
+				},
+				vueButton_vxQ3mClick: function(event) {
+					this.grid.retrieve();
+				},
+				vueXgrid_voESNCellClassName: function(obj) {
+					var uneditableClass = 'uneditable-cell';
+					var row = obj.row;
+					var column = obj.column;
+					if ('datetime' === column.property && row[column.property]) {
+						return uneditableClass;
+					}
+					if (this.lockedColumns.indexOf(column.property) != -1) {
+						return uneditableClass;
+					}
+				},
+				vueXgrid_voESNRowClassName: function(obj) {
+					var row = obj.row;
+					if (row.__editable === false) {
+						return 'uneditable-row';
+					}
+				},
+				vueXgrid_voESNActiveMethod: function(obj) {
+					if (!this.gridEditable) {
+						return false;
+					}
+					var row = obj.row;
+					if (row.__editable === false) {
+						return false;
+					}
+					var column = obj.column;
+					for (var i = 0; i < this.lockedColumns.length; i++) {
+						if (this.lockedColumns[i] === column.property) {
+							return false;
+						}
+					}
+					if ('datetime' === column.property && row[column.property]) {
+						return false;
+					}
+					return true;
+				},
+				toggleGridEditClick: function(event) {
+					this.gridEditable = !this.gridEditable;
+				},
+				toggleRowEditClick: function(event) {
+					var self = this;
+					var xgrid = self.getRef('vueXgrid_voESN');
+					var selectedRows = xgrid.getSelectRecords();
+					if (selectedRows.length > 0) {
+						VueUtil.loop(selectedRows, function(selectedRow) {
+							if (selectedRow.__editable === false) {
+								selectedRow.__editable = true;
+							} else {
+								selectedRow.__editable = false;
+							}
+							var gridData = self.grid.data.datas;
+							Vue.set(gridData, gridData.indexOf(selectedRow), selectedRow);
+						});
+					} else {
+						componentutils.showWarningMessage({
+							message: '请至少一行数据'
+						});
+					}
+				},
+				lockSalaryClick: function(event) {
+					if (this.lockedColumns.indexOf('salary') === -1) {
+						this.lockedColumns.push('salary');
+					} else {
+						this.lockedColumns.splice(this.lockedColumns.indexOf('salary'), 1);
+					}
+				},
+				vueButton_XZP8yClick: function(event) {
+					this.$refs.vueXgrid_voESN.insertRow().then(function() {
+						//debugger
+					});
+				},
+				vueButton_XZOMnClick: function(event) {
+					var self = this;
+					var xgrid = self.getRef('vueXgrid_voESN');
+					var escortGrid = self.$refs.vueXgrid_voESN;
+					var selectedRows = xgrid.getSelectRecords();
+					if (selectedRows.length === 0) {
+						componentutils.showWarningMessage({
+							message: '请至少选中一行需要删除的数据'
+						});
+						return;
+					}
+					var uneditableRowExists = false;
+					VueUtil.loop(selectedRows, function(selectedRow) {
+						if (selectedRow.__editable === false) {
+							uneditableRowExists = true;
+						}
+					});
+					if (!uneditableRowExists) {
+						escortGrid.removeRows(selectedRows);
+					} else {
+						componentutils.showWarningMessage({
+							message: '存在不可编辑的数据行，请先去除勾选不可编辑行，再删除数据',
+							duration: 4000
+						});
+					}
+				},
+				vueButton_XZOnhClick: function() {
+					var self = this;
+					var escortGrid = self.$refs.vueXgrid_voESN;
+					var xgrid = self.getRef('vueXgrid_voESN');
+					if (escortGrid.isDataChanged()) {
+						xgrid.validate().then(function() {
+							var changeData = escortGrid.getChangedData();
+							self.updatePersons.retrieve(changeData);
+						}, function() {});
+					} else {
+						componentutils.showWarningMessage({
+							message: '数据未更改，没有数据需要提交'
+						});
+					}
+				},
+				gridParameter: function() {
+					return this.form;
+				},
+				projectListAfterClose: function(params) {
+					var currentRow = this.getRef('vueXgrid_voESN').getCurrentRow();
+					currentRow.project = params.projectName;
+				}
+			}
+		};
+		pageMixinMap.manualSeperate = {
+			data: function() {
+				return {
+					gridHeight: 0,
+					gridEditable: true,
+					lockedColumns: []
+				};
+			},
+			created: function() {
+				var thiz = this;
+				window.onresize = function() {
+					thiz.autoSetGridHeight();
+				};
+				window.page = this;
+			},
+			mounted: function() {
+				this.autoSetGridHeight();
+				window.table = this.$refs.vueXgrid_voESN;
+			},
+			methods: {
+				autoSetGridHeight: function() {
+					var winHeight = 0;
+					if (window.innerHeight) {
+						winHeight = window.innerHeight;
+					} else if ((document.body) && (document.body.offsetHeight)) {
+						winHeight = document.body.offsetHeight;
+					}
+					if (document.documentElement && document.documentElement.offsetHeight) {
+						winHeight = document.documentElement.offsetHeight;
+					}
+					var vuePanelHeight = this.getRef('vuePanel_vzHCb').$el.offsetHeight;
+					var frameHeight = 0; //Compatible height calculation of page and page template
+					if (document.getElementsByClassName('navbar').length > 0) {
+						frameHeight += document.getElementsByClassName('navbar')[0].offsetHeight;
+					}
+					if (document.getElementsByClassName('tags-view-container').length > 0) {
+						frameHeight += document.getElementsByClassName('tags-view-container')[0].offsetHeight;
+					}
+					this.gridHeight = winHeight - vuePanelHeight - frameHeight - 16;
+				}
+			}
+		};
+		pageMixinMap.auto = {
+			data: function() {
+				return {
+					pageLoading: false,
+					form: {
+						userName: ""
+					},
+					vueXgrid_voESNRules: {
+						personNo: [{
+							required: true,
+							message: 'personNo required'
+						}],
+						userName: [{
+							required: true,
+							message: 'name required'
+						}],
+						datetime: [{
+							required: true,
+							message: 'date required'
+						}]
+					},
+					vueXgrid_voESNSalaryCleave: {
+						numeralDecimalScale: '3'
+					},
+					grid: this.getDataSource({
+						url: "/xgrid/search.json",
+						type: "POST",
+						parameter: this.gridParameter
+					}),
+					sexDataSet: this.getDataSource({
+						type: "POST",
+						localData: [{
+							value: "1",
+							key: "男"
+						}, {
+							value: "0",
+							key: "女"
+						}]
+					}),
+					checkboxSet: this.getDataSource({
+						type: "POST",
+						localData: [{
+							value: "01",
+							label: "看书"
+						}, {
+							value: "02",
+							label: "游戏"
+						}, {
+							value: "03",
+							label: "篮球"
+						}, {
+							value: "04",
+							label: "旅游"
+						}, {
+							value: "05",
+							label: "电影"
+						}]
+					}),
+					selectSet: this.getDataSource({
+						type: "POST",
+						localData: [{
+							value: "",
+							key: ""
+						}, {
+							value: "RD",
+							key: "研发部"
+						}, {
+							value: "SD",
+							key: "销售部"
+						}, {
+							value: "AD",
+							key: "管理部"
+						}]
+					})
+				};
+			},
+			mounted: function() {
+				this.grid.retrieve();
+				this.sexDataSet.retrieve();
+				this.checkboxSet.retrieve();
+				this.selectSet.retrieve();
+			}
+		};
+		pageMixins = getPageMixins(pageMixinMap);
+	})();
+	module.exports = {
+		mixins: pageMixins,
+		name: "editableControlSample"
+	};
+</script>

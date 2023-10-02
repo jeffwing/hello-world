@@ -1,0 +1,199 @@
+<style type="text/css" scoped>
+	.vue-form.escort-vue.escort-vue-form {
+		padding: 8px;
+	}
+
+	.col-cell {
+		padding: 8px;
+	}
+
+	.col-cell+.col-cell {
+		border-left: 1px solid #e8eaec;
+	}
+</style>
+<template>
+	<div v-cloak class="page" v-loading="pageLoading" :vue-loading-text="messageutil.get('page.loading.text')">
+		<escort-form ref="form" id="form" :model="form">
+			<escort-collapse title="条件部" :collapse="true" id="vuePanel_vzHCb" ref="vuePanel_vzHCb" @change="vuePanel_vzHCbChange">
+				<escort-row id="vueRow_vuo28" ref="vueRow_vuo28">
+					<escort-col align="left" :inline="true" :md="{span:14}" :sm="{span:18}">
+						<escort-radio-button :options="timeRadio.data" :datasource="timeRadio" label-value="查询期间: 最近 " id="vueRadioButton_g2PqT" ref="vueRadioButton_g2PqT" v-model="time">
+						</escort-radio-button>
+					</escort-col>
+					<escort-col align="right" :inline="true" :md="{span:10}" :sm="{span:6}">
+						<escort-button type="primary" id="vueButton_vxQ3m" ref="vueButton_vxQ3m" @click="vueButton_vxQ3mClick"> 查询 </escort-button>
+					</escort-col>
+				</escort-row>
+			</escort-collapse>
+			<escort-xgrid :height="gridHeight" id="vueXgrid_voESN" ref="vueXgrid_voESN" :data="grid.data" data-field="datas" :datasource="grid" :edit-config="{ trigger: 'dblclick' }">
+				<escort-xgrid-column type="index" align="center" width="50px" min-width="50px">
+				</escort-xgrid-column>
+				<escort-xgrid-column prop="department" text="部门" width="130px" render-name="input">
+				</escort-xgrid-column>
+				<escort-xgrid-column v-for="(item,item_index) in dsColumn.data" :key="item.prop" :template-header="true" :template="true" align="right" :prop="item.prop" :text="item.text" width="350px">
+					<template slot="header" slot-scope="scope">
+						<vue-row>
+							<vue-col :span="24">
+								<span>{{item.text}}</span>
+							</vue-col>
+						</vue-row>
+						<vue-divider style="margin: 0 -10px;"></vue-divider>
+						<vue-row>
+							<vue-col :span="6" class="col-cell">
+								<span>毛利总额</span>
+							</vue-col>
+							<vue-col :span="6" class="col-cell">
+								<span>单品数</span>
+							</vue-col>
+							<vue-col :span="6" class="col-cell">
+								<span>动销数</span>
+							</vue-col>
+							<vue-col :span="6" class="col-cell">
+								<span>动销率</span>
+							</vue-col>
+						</vue-row>
+					</template>
+					<template slot="default" slot-scope="scope">
+						<vue-row>
+							<vue-col :span="6" class="col-cell">
+								<span>
+
+									{{ formatFloat(scope.row[item.prop].totalGrossProfit) }}</span>
+							</vue-col>
+							<vue-col :span="6" class="col-cell">
+								<span>
+
+									{{ scope.row[item.prop].productNumber }}</span>
+							</vue-col>
+							<vue-col :span="6" class="col-cell">
+								<span>
+
+									{{ scope.row[item.prop].productNumber1 }}</span>
+							</vue-col>
+							<vue-col :span="6" class="col-cell">
+								<span>
+
+									{{ formatFloatSalesNumber(scope.row[item.prop].activeSalesNumber) }}</span>
+							</vue-col>
+						</vue-row>
+					</template>
+				</escort-xgrid-column>
+			</escort-xgrid>
+		</escort-form>
+	</div>
+</template>
+<script type="text/javascript">
+	var pageMixins;
+	(function() {
+		var pageMixinMap = {};
+		pageMixinMap.event = {
+			methods: {
+				vuePanel_vzHCbChange: function() {
+					this.autoSetGridHeight();
+				},
+				vueButton_vxQ3mClick: function(event) {
+					this.dsColumn.retrieve();
+					this.grid.retrieve();
+				},
+				dsColumnParameter: function() {
+					return {
+						time: this.time
+					};
+				},
+				dsColumnSuccess: function(res) {
+					this.dsColumn.data = res.data.department;
+				}
+			}
+		};
+		pageMixinMap.manualSeperate = {
+			data: function() {
+				return {
+					gridHeight: 0,
+					time: "3"
+				};
+			},
+			created: function() {
+				var thiz = this;
+				window.onresize = function() {
+					thiz.autoSetGridHeight();
+				};
+			},
+			mounted: function() {
+				this.autoSetGridHeight();
+				window.table = this.$refs.vueXgrid_voESN;
+			},
+			methods: {
+				formatFloat: function(val, decimal) {
+					return VueUtil.formatNumber(val, decimal);
+				},
+				formatFloatSalesNumber: function(val) {
+					return this.formatFloat(val * 100) + "%";
+				},
+				autoSetGridHeight: function() {
+					var winHeight = 0;
+					if (window.innerHeight) {
+						winHeight = window.innerHeight;
+					} else if ((document.body) && (document.body.offsetHeight)) {
+						winHeight = document.body.offsetHeight;
+					}
+					if (document.documentElement && document.documentElement.offsetHeight) {
+						winHeight = document.documentElement.offsetHeight;
+					}
+					var vuePanelHeight = this.getRef('vuePanel_vzHCb').$el.offsetHeight;
+					var frameHeight = 0; //Compatible height calculation of page and page template
+					if (document.getElementsByClassName('navbar').length > 0) {
+						frameHeight += document.getElementsByClassName('navbar')[0].offsetHeight;
+					}
+					if (document.getElementsByClassName('tags-view-container').length > 0) {
+						frameHeight += document.getElementsByClassName('tags-view-container')[0].offsetHeight;
+					}
+					this.gridHeight = winHeight - vuePanelHeight - frameHeight - 16;
+				}
+			}
+		};
+		pageMixinMap.auto = {
+			data: function() {
+				return {
+					pageLoading: false,
+					form: {},
+					grid: this.getDataSource({
+						url: "/xgridLoop/search.json",
+						type: "POST"
+					}),
+					timeRadio: this.getDataSource({
+						type: "POST",
+						localData: [{
+							value: "3",
+							label: "3个月"
+						}, {
+							value: "6",
+							label: "6个月"
+						}, {
+							value: "9",
+							label: "9个月"
+						}, {
+							value: "12",
+							label: "12个月"
+						}]
+					}),
+					dsColumn: this.getDataSource({
+						url: "/xgridLoop/search.json",
+						type: "POST",
+						parameter: this.dsColumnParameter,
+						success: this.dsColumnSuccess
+					})
+				};
+			},
+			mounted: function() {
+				this.grid.retrieve();
+				this.timeRadio.retrieve();
+				this.dsColumn.retrieve();
+			}
+		};
+		pageMixins = getPageMixins(pageMixinMap);
+	})();
+	module.exports = {
+		mixins: pageMixins,
+		name: "loopColumnSample"
+	};
+</script>

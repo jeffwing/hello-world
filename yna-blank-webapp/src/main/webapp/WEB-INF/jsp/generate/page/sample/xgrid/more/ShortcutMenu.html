@@ -1,0 +1,134 @@
+<style type="text/css" scoped>
+	.vue-form.escort-vue.escort-vue-form {
+		padding: 8px;
+	}
+</style>
+<template>
+	<div v-cloak class="page" v-loading="pageLoading" :vue-loading-text="messageutil.get('page.loading.text')">
+		<escort-form ref="form" id="form" :model="form">
+			<escort-collapse title="条件部" :collapse="true" id="vuePanel_vzHCb" ref="vuePanel_vzHCb" @change="vuePanel_vzHCbChange">
+				<escort-row id="vueRow_vuo28" ref="vueRow_vuo28">
+					<escort-col align="left" :inline="true" :md="{span:14}" :sm="{span:18}">
+						<escort-input label-value="姓名:" label-width="60px" id="vueInputBox_vuGkz" ref="vueInputBox_vuGkz" v-model="form.userName" prop="userName" :style_="{ width : '200px' }"></escort-input>
+					</escort-col>
+					<escort-col align="right" :inline="true" :md="{span:10}" :sm="{span:6}">
+						<escort-button type="primary" id="vueButton_vxQ3m" ref="vueButton_vxQ3m" @click="vueButton_vxQ3mClick"> 查询 </escort-button>
+					</escort-col>
+				</escort-row>
+			</escort-collapse>
+			<escort-xgrid :front-pagination="true" :context-menu="{body: {options: [[
+                  { code: 'PRINT_ALL', name: '打印', prefixIcon: 'fa fa-print' },
+                  { code: 'EXPORT_ALL', name: '导出.csv', prefixIcon: 'fa fa-download', params: { type: 'csv' } }
+                ]]}}" @context-menu-click="contextMenuClickEvent" :pageable="true" :height="gridHeight" id="vueXgrid_voESN" ref="vueXgrid_voESN" :data="grid.data" data-field="datas" :datasource="grid" total-field="total" :edit-config="{ trigger: 'dblclick' }" :toolbar="{ id:'vueXgrid_voESNToolbar' ,refresh: true ,setting: true }">
+				<escort-xgrid-column type="index" align="center" width="50px" min-width="50px">
+				</escort-xgrid-column>
+				<escort-xgrid-column prop="userName" width="200px" text="姓名" render-name="input">
+				</escort-xgrid-column>
+				<escort-xgrid-column render-name="date" edit-render-attrs-type="date" prop="date" align="center" text="入社日期" width="250px">
+				</escort-xgrid-column>
+				<escort-xgrid-column prop="personNo" text="编号" width="180px" render-name="input">
+				</escort-xgrid-column>
+				<escort-xgrid-column render-name="numeric" :edit-render-attrs-cleave="vueXgrid_voESNAgeCleave" prop="age" align="right" width="180px" text="年龄">
+				</escort-xgrid-column>
+			</escort-xgrid>
+		</escort-form>
+	</div>
+</template>
+<script type="text/javascript">
+	var pageMixins;
+	(function() {
+		var pageMixinMap = {};
+		pageMixinMap.event = {
+			methods: {
+				vuePanel_vzHCbChange: function() {
+					this.autoSetGridHeight();
+				},
+				vueButton_vxQ3mClick: function(event) {
+					this.$refs.vueXgrid_voESN.paginationReturnToFirst();
+					this.grid.retrieve();
+				},
+				gridParameter: function() {
+					return this.form;
+				}
+			}
+		};
+		pageMixinMap.manualSeperate = {
+			data: function() {
+				return {
+					gridHeight: 0,
+					departmentName: null
+				};
+			},
+			created: function() {
+				var thiz = this;
+				window.onresize = function() {
+					thiz.autoSetGridHeight();
+				};
+			},
+			mounted: function() {
+				this.autoSetGridHeight();
+			},
+			methods: {
+				autoSetGridHeight: function() {
+					var winHeight = 0;
+					if (window.innerHeight) {
+						winHeight = window.innerHeight;
+					} else if ((document.body) && (document.body.offsetHeight)) {
+						winHeight = document.body.offsetHeight;
+					}
+					if (document.documentElement && document.documentElement.offsetHeight) {
+						winHeight = document.documentElement.offsetHeight;
+					}
+					var vuePanelHeight = this.getRef('vuePanel_vzHCb').$el.offsetHeight;
+					var frameHeight = 0; //Compatible height calculation of page and page template
+					if (document.getElementsByClassName('navbar').length > 0) {
+						frameHeight += document.getElementsByClassName('navbar')[0].offsetHeight;
+					}
+					if (document.getElementsByClassName('tags-view-container').length > 0) {
+						frameHeight += document.getElementsByClassName('tags-view-container')[0].offsetHeight;
+					}
+					this.gridHeight = winHeight - vuePanelHeight - frameHeight - 16;
+				},
+				contextMenuClickEvent: function(obj) {
+					var self = this;
+					var menu = obj.menu,
+						row = obj.row,
+						column = obj.column;
+					if (menu.code == 'PRINT_ALL') {
+						self.getRef('vueXgrid_voESN').print();
+					} else if (menu.code == 'EXPORT_ALL') {
+						self.getRef('vueXgrid_voESN').exportData({
+							type: 'csv'
+						});
+					}
+				}
+			}
+		};
+		pageMixinMap.auto = {
+			data: function() {
+				return {
+					pageLoading: false,
+					form: {
+						userName: ""
+					},
+					vueXgrid_voESNAgeCleave: {
+						numeralDecimalScale: '0'
+					},
+					grid: this.getDataSource({
+						url: "/xgridPaging/search.json",
+						type: "POST",
+						parameter: this.gridParameter
+					})
+				};
+			},
+			mounted: function() {
+				this.grid.retrieve();
+			}
+		};
+		pageMixins = getPageMixins(pageMixinMap);
+	})();
+	module.exports = {
+		mixins: pageMixins,
+		name: "ShortcutMenu"
+	};
+</script>

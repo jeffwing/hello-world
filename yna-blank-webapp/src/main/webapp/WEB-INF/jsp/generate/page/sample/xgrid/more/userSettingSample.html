@@ -1,0 +1,160 @@
+<style type="text/css" scoped>
+	.vue-form.escort-vue.escort-vue-form {
+		padding: 8px;
+	}
+
+	.tip .vue-note__description {
+		font-size: 14px;
+		color: black;
+	}
+
+	.red {
+		color: red;
+	}
+</style>
+<template>
+	<div v-cloak class="page" v-loading="pageLoading" :vue-loading-text="messageutil.get('page.loading.text')">
+		<escort-form ref="form" id="form" :model="form">
+			<escort-collapse title="个性化设置信息" :collapse="true" id="vuePanel_vzHCb" ref="vuePanel_vzHCb" @change="vuePanel_vzHCbChange">
+				<!-- BEGIN CUSTOM DIV CODE --> 获取个性化设置:调用getUserSetting()方法可获取表格的列设置信息,包括固定列、列顺序、过滤、排序、 列显示、列宽设置. <br />加载个性化设置:通过setUserSetting(settinginfo)方法,按settinginfo中的设置加载个性化表格. <br />恢复默认设置:resetAll(),手动清除表格所有条件，还原到初始状态.
+				<!-- END CUSTOM DIV CODE -->
+				<escort-textarea :label-display="false" id="vueTextarea_b3EGZ" ref="vueTextarea_b3EGZ" v-model="settinginfo">
+				</escort-textarea>
+			</escort-collapse>
+			<escort-xgrid :column-draggable="true" :pageable="true" :height="gridHeight" id="vueXgrid_voESN" ref="vueXgrid_voESN" :data="grid.data" data-field="datas" :datasource="grid" total-field="total" :edit-config="{ trigger: 'dblclick' }" :toolbar="{ id:'vueXgrid_voESNToolbar' ,refresh: true ,fixed: true ,setting: true }">
+				<template slot="buttons">
+					<escort-button id="vueButton_b2Ugo" ref="vueButton_b2Ugo" @click="vueButton_b2UgoClick"> 获取个性化设置 </escort-button>
+					<escort-button id="vueButton_1MvSkU" ref="vueButton_1MvSkU" @click="vueButton_1MvSkUClick"> 加载个性化设置 </escort-button>
+					<escort-button id="vueButton_1OPrMA" ref="vueButton_1OPrMA" @click="vueButton_1OPrMAClick"> 恢复默认设置 </escort-button>
+				</template>
+				<escort-xgrid-column type="index" align="center" width="50px" min-width="50px">
+				</escort-xgrid-column>
+				<escort-xgrid-column prop="personNo" align="center" :uppercase="true" edit-render-default-value="PNO99" :resizable="true" text="编号" width="80px" render-name="input">
+				</escort-xgrid-column>
+				<escort-xgrid-column prop="userName" align="center" :filterable="true" :sortable="true" edit-render-default-value="新增人员" :resizable="true" filter-type="excel" text="姓名" width="180px" render-name="input" :sort-method="vueXgrid_voESNUserNameSortMethod">
+				</escort-xgrid-column>
+				<escort-xgrid-column render-name="numeric" :edit-render-attrs-cleave="vueXgrid_voESNAgeCleave" prop="age" align="right" :filterable="true" :resizable="true" filter-type="complex" :sortable="true" :edit-render-default-value="20" width="120px" text="年龄">
+				</escort-xgrid-column>
+				<escort-xgrid-column render-name="date" edit-render-attrs-type="date" prop="date" :resizable="true" align="center" text="入社日期" width="200px">
+				</escort-xgrid-column>
+				<escort-xgrid-column render-name="select" :template="true" :edit-render-attrs-options="selectSet.data" :edit-render-attrs-datasource="selectSet" edit-render-attrs-display-member="key" prop="department" :resizable="true" align="center" text="部门" width="130px">
+					<template slot="default" slot-scope="scope">
+						<escort-xgrid-column-display :row="scope.row" field="department" widget-type="select" display-member="key" align="center" :options="selectSet.data">
+						</escort-xgrid-column-display>
+					</template>
+				</escort-xgrid-column>
+				<escort-xgrid-column render-name="textarea" prop="address" :resizable="true" text="住址" min-width="250px">
+				</escort-xgrid-column>
+			</escort-xgrid>
+		</escort-form>
+	</div>
+</template>
+<script type="text/javascript">
+	var pageMixins;
+	(function() {
+		var pageMixinMap = {};
+		pageMixinMap.event = {
+			methods: {
+				vuePanel_vzHCbChange: function() {
+					this.autoSetGridHeight();
+				},
+				vueButton_b2UgoClick: function(event) {
+					this.settinginfo = this.getRef('vueXgrid_voESN').getUserSetting();
+				},
+				vueButton_1MvSkUClick: function(event) {
+					this.getRef('vueXgrid_voESN').setUserSetting(this.settinginfo);
+				},
+				vueButton_1OPrMAClick: function(event) {
+					this.getRef('vueXgrid_voESN').resetAll();
+				},
+				vueXgrid_voESNUserNameSortMethod: function(rowa, rowb, prop) {
+					return Intl.Collator("zh").compare(rowa.userName, rowb.userName);
+				},
+				gridParameter: function() {
+					return this.form;
+				}
+			}
+		};
+		pageMixinMap.manualSeperate = {
+			data: function() {
+				return {
+					gridHeight: 0,
+					settinginfo: ''
+				};
+			},
+			created: function() {
+				var thiz = this;
+				window.onresize = function() {
+					thiz.autoSetGridHeight();
+				};
+			},
+			mounted: function() {
+				this.autoSetGridHeight();
+				window.table = this.$refs.vueXgrid_voESN;
+			},
+			methods: {
+				autoSetGridHeight: function() {
+					var winHeight = 0;
+					if (window.innerHeight) {
+						winHeight = window.innerHeight;
+					} else if ((document.body) && (document.body.offsetHeight)) {
+						winHeight = document.body.offsetHeight;
+					}
+					if (document.documentElement && document.documentElement.offsetHeight) {
+						winHeight = document.documentElement.offsetHeight;
+					}
+					var vuePanelHeight = this.getRef('vuePanel_vzHCb').$el.offsetHeight;
+					var frameHeight = 0; //Compatible height calculation of page and page template
+					if (document.getElementsByClassName('navbar').length > 0) {
+						frameHeight += document.getElementsByClassName('navbar')[0].offsetHeight;
+					}
+					if (document.getElementsByClassName('tags-view-container').length > 0) {
+						frameHeight += document.getElementsByClassName('tags-view-container')[0].offsetHeight;
+					}
+					this.gridHeight = winHeight - vuePanelHeight - frameHeight - 16;
+				}
+			}
+		};
+		pageMixinMap.auto = {
+			data: function() {
+				return {
+					pageLoading: false,
+					form: {},
+					vueXgrid_voESNAgeCleave: {
+						numeralDecimalScale: '0'
+					},
+					grid: this.getDataSource({
+						url: "/xgrid/search.json",
+						type: "POST",
+						parameter: this.gridParameter
+					}),
+					selectSet: this.getDataSource({
+						type: "POST",
+						localData: [{
+							value: "",
+							key: ""
+						}, {
+							value: "RD",
+							key: "研发部"
+						}, {
+							value: "SD",
+							key: "销售部"
+						}, {
+							value: "AD",
+							key: "管理部"
+						}]
+					})
+				};
+			},
+			mounted: function() {
+				this.grid.retrieve();
+				this.selectSet.retrieve();
+			}
+		};
+		pageMixins = getPageMixins(pageMixinMap);
+	})();
+	module.exports = {
+		mixins: pageMixins,
+		name: "userSettingSample"
+	};
+</script>

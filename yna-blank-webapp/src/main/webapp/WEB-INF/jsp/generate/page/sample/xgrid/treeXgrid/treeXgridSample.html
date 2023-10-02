@@ -1,0 +1,185 @@
+<style type="text/css" scoped>
+	.vue-form.escort-vue.escort-vue-form {
+		padding: 8px;
+	}
+
+	.tip {
+		margin-bottom: 5px;
+	}
+
+	.tip .vue-note__description {
+		font-size: 14px;
+		color: black;
+	}
+
+	.red {
+		color: red;
+	}
+</style>
+<template>
+	<div v-cloak class="page" v-loading="pageLoading" :vue-loading-text="messageutil.get('page.loading.text')">
+		<escort-form ref="form" id="form" :model="form">
+			<escort-notice :show-content="true" title=" " :plain="false" cls="tip" id="vueNotice_BYTLX" ref="vueNotice_BYTLX"> 树表格，通过配置"Vue-Grid"(控件)-"Tree Config"(分组)-"Tree"(属性) 和指定列部品(如Input Column)-"Basic"(分组)-"tree-node"(属性)来开启树表格，还可以通过 "Vue-Grid"(控件)-"Tree Config"(分组)-"Trigger"(属性) 指定触发方式. <br /> <span class="red"> (注：不支持大量数据，大数据可以将树结构铺平为列表进行展示)</span> <br /> 分组汇总合计方式: 在grid指定数据源控件(Vue DataSet)的成功回调中(Success Callback)重新编辑数据,增加合计数据. </escort-notice>
+			<escort-collapse title="条件部" :collapse="true" id="vuePanel_BVNsN" ref="vuePanel_BVNsN">
+				<escort-row id="vueRow_BW0tE" ref="vueRow_BW0tE">
+					<escort-col :md="{span:12}" :sm="{span:12}">
+						<escort-select :options="selectDatas.data" :style_="{ width : '200px' }" label-value="部门" :clearable="true" id="vueSelect_BW7oz" ref="vueSelect_BW7oz" v-model="form.userName" prop="userName" :datasource="selectDatas">
+						</escort-select>
+					</escort-col>
+					<escort-col align="right" :md="{span:12}" :sm="{span:12}">
+						<escort-button id="vueButton_BWr9i" ref="vueButton_BWr9i" @click="vueButton_BWr9iClick"> 查询 </escort-button>
+					</escort-col>
+				</escort-row>
+			</escort-collapse>
+			<escort-row id="vueRow_G4DGd" ref="vueRow_G4DGd">
+				<escort-col :md="{span:24}">
+					<escort-xgrid :lazyload="false" :stripe="true" :remote-sort="false" :row-draggable="false" :column-draggable="false" height="300px" :show-footer="true" :border="true" :highlight-current-row="true" empty-text="No Data..." id="vueXgridTree" ref="vueXgridTree" :data="grid.data" data-field="datas" :datasource="grid" :tree-config="{ trigger: 'cell' }" :toolbar="{ id:'vueXgridTreeToolbar' }">
+						<template slot="buttons">
+							<escort-button id="vueButton_Ctq9c" ref="vueButton_Ctq9c" @click="vueButton_Ctq9cClick"> 全展开 </escort-button>
+							<escort-button id="vueButton_CtqAM" ref="vueButton_CtqAM" @click="vueButton_CtqAMClick"> 全收缩 </escort-button>
+						</template>
+						<escort-xgrid-column type="index" align="center" fixed="left" :resizable="true" width="50px" min-width="50px">
+						</escort-xgrid-column>
+						<escort-xgrid-column prop="userName" :resizable="true" :rowspan="true" :tree-node="true" :aggregate="handleAggregate" text="名称" min-width="200px" render-name="input" :formatter="vueXgridTreeUserNameFormatter">
+						</escort-xgrid-column>
+						<escort-xgrid-column render-name="numeric" :edit-render-attrs-cleave="vueXgridTreeAgeCleave" edit-render-attrs-delimiter="," prop="age" align="right" :aggregate="handleAggregateByAge" :resizable="true" class-name="aaa" footer-align="right" text="年龄" width="120px">
+						</escort-xgrid-column>
+						<escort-xgrid-column render-name="numeric" :formatter="vueXgridTreeSalaryFormatter" prop="salary" align="right" :aggregate="handleAggregateBySalary" footer-align="right" text="月薪" min-width="200px">
+						</escort-xgrid-column>
+					</escort-xgrid>
+				</escort-col>
+			</escort-row>
+		</escort-form>
+	</div>
+</template>
+<script type="text/javascript">
+	var pageMixins;
+	(function() {
+		var pageMixinMap = {};
+		pageMixinMap.event = {
+			methods: {
+				vueButton_BWr9iClick: function(event) {
+					this.grid.retrieve();
+				},
+				vueButton_Ctq9cClick: function(event) {
+					this.setAllTreeExpansion(true);
+				},
+				vueButton_CtqAMClick: function(event) {
+					this.clearTreeExpand();
+				},
+				vueXgridTreeUserNameFormatter: function(row, columnConfig, cellValue) {
+					return row.children && row.children.length ? row.userName + "(" + row.children.length + "人)" : row.userName;
+				},
+				vueXgridTreeSalaryFormatter: function(row, columnConfig, cellValue) {
+					return VueUtil.formatNumber(cellValue);
+				},
+				gridParameter: function() {
+					return this.form;
+				},
+				gridSuccess: function(res) {
+					var self = this;
+					VueUtil.loop(res.body.datas, function(item) {
+						var children = item.children;
+						if (children && children.length) {
+							item.age = self.handleAverage(children, 'age');
+							item.salary = self.handleAverage(children, 'salary');
+						}
+					});
+				}
+			}
+		};
+		pageMixinMap.manualSeperate = {
+			methods: {
+				handleAverage: function(data, property) {
+					return VueUtil.meanBy(data, function(row) {
+						var value = row[property];
+						return VueUtil.isNumberStr(value) ? value : 0;
+					});
+				},
+				handleSum: function(data) {
+					return data.length;
+				},
+				handleAggregate: function(escortColumn, columnIndex, data) {
+					var size = 0;
+					data.forEach(function(item) {
+						var children = item.children;
+						if (children && children.length) {
+							size += item.children.length;
+						}
+					});
+					return "合计:" + "(" + size + "人)";
+				},
+				handleAggregateByAge: function(escortColumn, columnIndex, data) {
+					var age = 0,
+						self = this,
+						allSalary = [];
+					if (data && data.length) {
+						age = self.handleAverage(data, 'age');
+					}
+					return "平均年龄:" + VueUtil.formatNumber(age, 0);
+				},
+				handleAggregateBySalary: function(escortColumn, columnIndex, data) {
+					var salary = 0,
+						self = this;
+					if (data && data.length) {
+						salary = self.handleAverage(data, 'salary');
+					}
+					return "平均月薪:" + VueUtil.formatNumber(salary);
+				},
+				setAllTreeExpansion: function(checked) {
+					this.getRef("vueXgridTree").setAllTreeExpansion(checked);
+				},
+				clearTreeExpand: function() {
+					this.getRef("vueXgridTree").clearTreeExpand();
+				}
+			}
+		};
+		pageMixinMap.auto = {
+			data: function() {
+				return {
+					pageLoading: false,
+					form: {
+						userName: ""
+					},
+					vueXgridTreeAgeCleave: {
+						numeralDecimalScale: '0'
+					},
+					grid: this.getDataSource({
+						url: "/xgridTree/search.json",
+						type: "POST",
+						parameter: this.gridParameter,
+						success: this.gridSuccess
+					}),
+					selectDatas: this.getDataSource({
+						type: "POST",
+						localData: [{
+							value: "管理部",
+							label: "管理部"
+						}, {
+							value: "研发部",
+							label: "研发部"
+						}, {
+							value: "销售部",
+							label: "销售部"
+						}, {
+							value: "技术部",
+							label: "技术部"
+						}, {
+							value: "人事部",
+							label: "人事部"
+						}]
+					})
+				};
+			},
+			mounted: function() {
+				this.grid.retrieve();
+				this.selectDatas.retrieve();
+			}
+		};
+		pageMixins = getPageMixins(pageMixinMap);
+	})();
+	module.exports = {
+		mixins: pageMixins,
+		name: "treeXgridSample"
+	};
+</script>

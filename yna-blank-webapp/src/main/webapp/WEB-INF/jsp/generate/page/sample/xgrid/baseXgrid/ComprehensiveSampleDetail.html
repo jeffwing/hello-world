@@ -1,0 +1,86 @@
+<style type="text/css" scoped>
+</style>
+<template>
+	<div v-cloak class="page" v-loading="pageLoading" :vue-loading-text="messageutil.get('page.loading.text')">
+		<escort-form ref="form" id="form" :model="form">
+			<escort-collapse title="详细信息" :show-arrow="false" id="formPanel" ref="formPanel">
+				<template slot="title">
+					<escort-row id="vueRow_BuDK7" ref="vueRow_BuDK7">
+						<escort-col align="right" :md="{span:23}">
+							<escort-icon icon="vue-icon-close" id="vueIcon_BuUbM" ref="vueIcon_BuUbM" @click="vueIcon_BuUbMClick">
+							</escort-icon>
+						</escort-col>
+					</escort-row>
+				</template>
+				<escort-input label-value="ID：" label-width="40%" :hidden="true" id="form_id" ref="form_id" v-model="form.id" prop="id" :style_="{ width : '50%' }"></escort-input>
+				<escort-input label-value="编号：" label-width="40%" :readonly="true" id="form_personNo" ref="form_personNo" v-model="form.personNo" prop="personNo" :style_="{ width : '50%' }"></escort-input>
+				<escort-input label-value="姓名：" label-width="40%" :readonly="true" id="form_name" ref="form_name" v-model="form.userName" prop="userName" :style_="{ width : '50%' }"></escort-input>
+				<escort-radio-button :options="form_sexOpts" label-value="性别：" label-width="40%" :label-display="true" id="form_sex" ref="form_sex" v-model="form.sex" prop="sex">
+				</escort-radio-button>
+				<escort-datetime-picker label-value="入社日期：" label-width="40%" :readonly="true" id="form_date" ref="form_date" v-model="form.date" prop="date" :style_="{ width : '50%' }">
+				</escort-datetime-picker>
+				<escort-input label-value="地址：" label-width="40%" :readonly="true" id="form_address" ref="form_address" v-model="form.address" prop="address" :style_="{ width : '50%' }"></escort-input>
+				<escort-row id="vueRow_lYgQK" ref="vueRow_lYgQK">
+					<escort-col align="center" :inline="true" :md="{span:24}">
+					</escort-col>
+				</escort-row>
+			</escort-collapse>
+		</escort-form>
+	</div>
+</template>
+<script type="text/javascript">
+	var pageMixins;
+	(function() {
+		var pageMixinMap = {};
+		pageMixinMap.event = {
+			methods: {
+				vueIcon_BuUbMClick: function(event) {
+					//this.$refs.form.resetFields();
+					this.getRef('form').resetFields();
+					this.$emit('close');
+				}
+			}
+		};
+		pageMixinMap.manualSeperate = {
+			mounted: function() {
+				var params = this.$attrs.params;
+				if (params) {
+					this.form['id'] = params.id;
+					this.form['userName'] = params.userName;
+					this.form['personNo'] = params.personNo;
+					this.form['sexValue'] = params.sexValue;
+					this.form['age'] = params.age;
+					this.form['date'] = params.date;
+					this.form['address'] = params.address;
+				}
+			}
+		};
+		pageMixinMap.auto = {
+			data: function() {
+				return {
+					pageLoading: false,
+					form: {
+						id: "",
+						personNo: "",
+						userName: "",
+						sex: "0",
+						date: "",
+						address: ""
+					},
+					form_sexOpts: [{
+						value: "0",
+						label: "男"
+					}, {
+						value: "1",
+						label: "女"
+					}]
+				};
+			}
+		};
+		pageMixins = getPageMixins(pageMixinMap);
+	})();
+	module.exports = {
+		mixins: pageMixins,
+		name: "ComprehensiveSampleDetail"
+	};
+</script>

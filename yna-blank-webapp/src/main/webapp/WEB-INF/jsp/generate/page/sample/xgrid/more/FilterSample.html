@@ -1,0 +1,114 @@
+<style type="text/css" scoped>
+	.vue-form.escort-vue.escort-vue-form {
+		padding: 8px;
+	}
+</style>
+<template>
+	<div v-cloak class="page" v-loading="pageLoading" :vue-loading-text="messageutil.get('page.loading.text')">
+		<escort-form ref="form" id="form" :model="form">
+			<escort-xgrid :pageable="true" :height="gridHeight" id="vueXgrid_voESN" ref="vueXgrid_voESN" :data="grid.data" data-field="datas" :datasource="grid" total-field="total" :edit-config="{ trigger: 'dblclick' }" :toolbar="{ id:'vueXgrid_voESNToolbar' ,refresh: true ,setting: true }">
+				<escort-xgrid-column render-name="date" edit-render-attrs-type="date" prop="date" align="center" :filterable="true" text="默认的筛选" width="250px">
+				</escort-xgrid-column>
+				<escort-xgrid-column prop="personNo" :filterable="true" filter-type="complex" text="实现复杂的筛选" width="180px" render-name="input">
+				</escort-xgrid-column>
+				<escort-xgrid-column render-name="numeric" prop="salary" align="right" :filterable="true" filter-type="excel" width="180px" text="实现Excel复杂的筛选">
+				</escort-xgrid-column>
+				<escort-xgrid-column render-name="numeric" :edit-render-attrs-cleave="vueXgrid_voESNAgeCleave" :filters="[{label: '大于16岁', value: 16}, {label: '大于46岁', value: 46}, {label: '大于60岁', value: 60}]" :filter-method="vueXgrid_voESNAgeFilterMethod" prop="age" align="right" :filterable="true" filter-type="filters" width="180px" text="自定义筛选的选项">
+				</escort-xgrid-column>
+				<escort-xgrid-column prop="userName" :filterable="true" filter-type="template" width="200px" text="自定义筛选的模板" render-name="input" :filter-method="vueXgrid_voESNUserNameFilterMethod" :template-filter="true">
+					<template slot="filter" slot-scope="scope">
+						<input v-model="scope.column.filters[0].data" @input="scope.context.changeOption($event, !!scope.column.filters[0].data, scope.column.filters[0])" @keyup.enter="scope.context.confirmFilter()" placeholder="按回车进行筛选">
+					</template>
+				</escort-xgrid-column>
+			</escort-xgrid>
+		</escort-form>
+	</div>
+</template>
+<script type="text/javascript">
+	var pageMixins;
+	(function() {
+		var pageMixinMap = {};
+		pageMixinMap.event = {
+			methods: {
+				vueXgrid_voESNAgeFilterMethod: function(filterObj) {
+					var value = filterObj.value;
+					var row = filterObj.row;
+					return row.age >= value;
+				},
+				vueXgrid_voESNUserNameFilterMethod: function(obj) {
+					debugger;
+					var row = obj.row;
+					var column = obj.column;
+					var value = obj.option.data.toLowerCase();
+					return row.userName.toLowerCase().indexOf(value) > -1;
+				},
+				gridParameter: function() {
+					return this.form;
+				}
+			}
+		};
+		pageMixinMap.manualSeperate = {
+			data: function() {
+				return {
+					gridHeight: 0,
+					departmentName: null
+				};
+			},
+			created: function() {
+				var thiz = this;
+				window.onresize = function() {
+					thiz.autoSetGridHeight();
+				};
+			},
+			mounted: function() {
+				this.autoSetGridHeight();
+			},
+			methods: {
+				autoSetGridHeight: function() {
+					var winHeight = 0;
+					if (window.innerHeight) {
+						winHeight = window.innerHeight;
+					} else if ((document.body) && (document.body.offsetHeight)) {
+						winHeight = document.body.offsetHeight;
+					}
+					if (document.documentElement && document.documentElement.offsetHeight) {
+						winHeight = document.documentElement.offsetHeight;
+					}
+					//  var vuePanelHeight= this.getRef('vuePanel_vzHCb').$el.offsetHeight;
+					var frameHeight = 0; //Compatible height calculation of page and page template
+					if (document.getElementsByClassName('navbar').length > 0) {
+						frameHeight += document.getElementsByClassName('navbar')[0].offsetHeight;
+					}
+					if (document.getElementsByClassName('tags-view-container').length > 0) {
+						frameHeight += document.getElementsByClassName('tags-view-container')[0].offsetHeight;
+					}
+					this.gridHeight = winHeight - frameHeight - 16;
+				}
+			}
+		};
+		pageMixinMap.auto = {
+			data: function() {
+				return {
+					pageLoading: false,
+					form: {},
+					vueXgrid_voESNAgeCleave: {
+						numeralDecimalScale: '0'
+					},
+					grid: this.getDataSource({
+						url: "/xgrid/search.json",
+						type: "POST",
+						parameter: this.gridParameter
+					})
+				};
+			},
+			mounted: function() {
+				this.grid.retrieve();
+			}
+		};
+		pageMixins = getPageMixins(pageMixinMap);
+	})();
+	module.exports = {
+		mixins: pageMixins,
+		name: "FilterSample"
+	};
+</script>

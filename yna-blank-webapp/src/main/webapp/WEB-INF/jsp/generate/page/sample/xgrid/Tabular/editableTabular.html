@@ -1,0 +1,455 @@
+<style type="text/css" scoped>
+	.vue-form.escort-vue.escort-vue-form {
+		padding: 8px;
+	}
+</style>
+<template>
+	<div v-cloak class="page" v-loading="pageLoading" :vue-loading-text="messageutil.get('page.loading.text')">
+		<escort-form ref="form" id="form" :model="form">
+			<escort-collapse title="条件部" :collapse="true" id="conditionPanel" ref="conditionPanel" @change="conditionPanelChange">
+				<escort-row id="copy0_vueRow_OeNpv" ref="copy0_vueRow_OeNpv">
+					<escort-col :md="{span:6}">
+						<escort-input label-value="姓名：" size="small" id="name" ref="name" v-model="form.name" prop="name"></escort-input>
+					</escort-col>
+					<escort-col :md="{span:8}">
+						<escort-radio-button :options="sexOpts" label-value="性别：" size="small" id="sex" ref="sex" v-model="form.sexValue" prop="sexValue">
+						</escort-radio-button>
+					</escort-col>
+					<escort-col :md="{span:8}">
+						<escort-input label-value="地址：" size="small" id="address" ref="address" v-model="form.address" prop="address"></escort-input>
+					</escort-col>
+					<escort-col align="right" :md="{span:2}">
+						<escort-button type="primary" size="small" icon="vue-icon-search" id="btnSearch" ref="btnSearch" @click="btnSearchClick"> 查询 </escort-button>
+					</escort-col>
+				</escort-row>
+			</escort-collapse>
+			<escort-xgrid :front-pagination="true" :pageable="true" :height="gridHeight" id="grid" ref="grid" :page-change="gridPageChange" :data="dsGrid.data" data-field="content" :datasource="dsGrid" :rules="gridRules" :edit-config="{ mode: 'row' }" :toolbar="{ id:'gridToolbar' ,import: true ,export: true ,refresh: true }">
+				<template slot="buttons">
+					<escort-button size="small" id="insertRow" ref="insertRow" @click="insertRowClick"> 插入行 </escort-button>
+					<escort-button size="small" id="delCur" ref="delCur" @click="delCurClick"> 删除当前行 </escort-button>
+					<escort-button size="small" id="delSelect" ref="delSelect" @click="delSelectClick"> 删除选中行 </escort-button>
+					<escort-button size="small" id="submit" ref="submit" @click="submitClick"> 提交 </escort-button>
+					<escort-button size="small" id="fullValidate" ref="fullValidate" @click="fullValidateClick"> 全部校验 </escort-button>
+				</template>
+				<escort-xgrid-column align="center" type="checkbox" width="50px">
+				</escort-xgrid-column>
+				<escort-xgrid-column type="index" align="center" width="50px" min-width="50px">
+				</escort-xgrid-column>
+				<escort-xgrid-column prop="personNo" align="center" :uppercase="true" :filterable="true" text="编号" width="100px" :editable="true" render-name="input">
+				</escort-xgrid-column>
+				<escort-xgrid-column width="240px" :template-edit="true" :editable="true" :template="true" :template-header="true" render-name="group" :prop="['name','age','sexValue']">
+					<template slot-scope="scope" slot="header">
+						<div>
+							<escort-row id="vueRow_uDY8l" ref="vueRow_uDY8l">
+								<escort-col :md="{span:24}">
+									<escort-xgrid-column-header :is-required="true" :editable="true" text="姓名">
+									</escort-xgrid-column-header>
+								</escort-col>
+							</escort-row>
+							<escort-row id="vueRow_uDZ3p" ref="vueRow_uDZ3p">
+								<escort-col :md="{span:10}">
+									<escort-xgrid-column-header :is-required="true" :editable="true" text="年龄">
+									</escort-xgrid-column-header>
+								</escort-col>
+								<escort-col :md="{span:14}">
+									<escort-xgrid-column-header :is-required="true" :editable="true" text="性别">
+									</escort-xgrid-column-header>
+								</escort-col>
+							</escort-row>
+						</div>
+					</template>
+					<template slot-scope="scope" slot="default">
+						<div>
+							<escort-row id="vueRow_uDY8l" ref="vueRow_uDY8l">
+								<escort-col :md="{span:24}">
+									<escort-xgrid-column-display :row="scope.row" field="name" align="center">
+									</escort-xgrid-column-display>
+								</escort-col>
+							</escort-row>
+							<escort-row id="vueRow_uDZ3p" ref="vueRow_uDZ3p">
+								<escort-col :md="{span:10}">
+									<escort-xgrid-column-display :row="scope.row" field="age" widget-type="numeric" align="right" :cleave="gridAgeCleave" delimiter="-">
+									</escort-xgrid-column-display>
+								</escort-col>
+								<escort-col :md="{span:14}">
+									<escort-xgrid-column-display :row="scope.row" field="sexValue" widget-type="radio" align="center" :display-tag-color="['#ffb0f2','#a3d0f1']" :options="sexOptions.data">
+									</escort-xgrid-column-display>
+								</escort-col>
+							</escort-row>
+						</div>
+					</template>
+					<template slot-scope="scope" slot="edit">
+						<div>
+							<escort-row id="vueRow_uDY8l" ref="vueRow_uDY8l">
+								<escort-col :md="{span:24}">
+									<escort-base-input v-model="scope.row.name" size="small" align="center"></escort-base-input>
+								</escort-col>
+							</escort-row>
+							<escort-row id="vueRow_uDZ3p" ref="vueRow_uDZ3p">
+								<escort-col :md="{span:10}">
+									<escort-base-numeric-box v-model="scope.row.age" size="small" :cleave="gridAgeCleave" delimiter="-" align="right"></escort-base-numeric-box>
+								</escort-col>
+								<escort-col :md="{span:14}">
+									<escort-base-radio-button v-model="scope.row.sexValue" size="small" :options="sexOptions.data" :datasource="sexOptions" align="center"></escort-base-radio-button>
+								</escort-col>
+							</escort-row>
+						</div>
+					</template>
+				</escort-xgrid-column>
+				<escort-xgrid-column render-name="select" :template="true" :edit-render-attrs-options="departOptions.data" :edit-render-attrs-datasource="departOptions" prop="department" align="center" text="所属部门" width="120px" :editable="true">
+					<template slot="default" slot-scope="scope">
+						<escort-xgrid-column-display :row="scope.row" field="department" widget-type="select" align="center" :display-tag-color="['#FFB90F','#42b983','#6fb3e0']" :options="departOptions.data">
+						</escort-xgrid-column-display>
+					</template>
+				</escort-xgrid-column>
+				<escort-xgrid-column render-name="date" prop="date" edit-render-value-format="timestamp" align="center" text="入社日期" format="ymd" width="160px" :editable="true">
+				</escort-xgrid-column>
+				<escort-xgrid-column min-width="300px" :template-edit="true" :editable="true" :template="true" :template-header="true" render-name="group" :prop="['email','zip','address']">
+					<template slot-scope="scope" slot="header">
+						<div>
+							<escort-row id="vueRow_uEoQR" ref="vueRow_uEoQR">
+								<escort-col :md="{span:16}">
+									<escort-xgrid-column-header :editable="true" text="Email">
+									</escort-xgrid-column-header>
+								</escort-col>
+								<escort-col :md="{span:8}">
+									<escort-xgrid-column-header :editable="true" text="邮政编码">
+									</escort-xgrid-column-header>
+								</escort-col>
+							</escort-row>
+							<escort-row id="vueRow_4Ww6po" ref="vueRow_4Ww6po">
+								<escort-col :md="{span:24}">
+									<escort-xgrid-column-header :editable="true" text="住址">
+									</escort-xgrid-column-header>
+								</escort-col>
+							</escort-row>
+						</div>
+					</template>
+					<template slot-scope="scope" slot="default">
+						<div>
+							<escort-row id="vueRow_uEoQR" ref="vueRow_uEoQR">
+								<escort-col :md="{span:16}">
+									<escort-xgrid-column-display :row="scope.row" field="email" align="left">
+									</escort-xgrid-column-display>
+								</escort-col>
+								<escort-col :md="{span:8}">
+									<escort-xgrid-column-display :row="scope.row" field="zip" align="center">
+									</escort-xgrid-column-display>
+								</escort-col>
+							</escort-row>
+							<escort-row id="vueRow_4Ww6po" ref="vueRow_4Ww6po">
+								<escort-col :md="{span:24}">
+									<escort-xgrid-column-display :row="scope.row" field="address" align="left">
+									</escort-xgrid-column-display>
+								</escort-col>
+							</escort-row>
+						</div>
+					</template>
+					<template slot-scope="scope" slot="edit">
+						<div>
+							<escort-row id="vueRow_uEoQR" ref="vueRow_uEoQR">
+								<escort-col :md="{span:16}">
+									<escort-base-input v-model="scope.row.email" size="small" align="left"></escort-base-input>
+								</escort-col>
+								<escort-col :md="{span:8}">
+									<escort-base-input v-model="scope.row.zip" size="small" align="center"></escort-base-input>
+								</escort-col>
+							</escort-row>
+							<escort-row id="vueRow_4Ww6po" ref="vueRow_4Ww6po">
+								<escort-col :md="{span:24}">
+									<escort-base-input v-model="scope.row.address" size="small" align="left"></escort-base-input>
+								</escort-col>
+							</escort-row>
+						</div>
+					</template>
+				</escort-xgrid-column>
+			</escort-xgrid>
+		</escort-form>
+	</div>
+</template>
+<script type="text/javascript">
+	var pageMixins;
+	(function() {
+		var pageMixinMap = {};
+		pageMixinMap.event = {
+			methods: {
+				conditionPanelChange: function() {
+					this.autoSetGridHeight();
+				},
+				btnSearchClick: function(event) {
+					var self = this;
+					if (!this.$refs.grid.isDataChanged()) {
+						this.dsGrid.retrieve();
+					} else {
+						componentutils.sysConfirm({
+							title: "Warning",
+							message: "Unsaved data exist! Are you  sure to retrieve?"
+						}, function() {
+							self.dsGrid.retrieve();
+						})
+					}
+				},
+				gridPageChange: function(currentPage) {
+					if (this.$refs.grid.isDataChanged()) {
+						componentutils.showWarningMessage({
+							message: '存在未提交数据，禁止翻页，请先提交数据或者点刷新撤销更改',
+							duration: 5000,
+							showClose: true
+						});
+						return false;
+					}
+				},
+				insertRowClick: function(event) {
+					this.$refs.grid.insertRow().then(function() {
+						debugger
+					});
+				},
+				delCurClick: function(event) {
+					var currentRow = this.getRef('grid').getCurrentRow();
+					if (currentRow) {
+						this.$refs.grid.removeRows(this.getRef('grid').getCurrentRow());
+						this.getRef('grid').clearCurrentRow();
+					} else {
+						componentutils.showWarningMessage({
+							message: '请先点击一行需要删除的数据'
+						});
+					}
+				},
+				delSelectClick: function(event) {
+					var selectedRows = this.getRef('grid').getSelectRecords();
+					if (selectedRows.length > 0) {
+						this.$refs.grid.removeRows(selectedRows);
+					} else {
+						componentutils.showWarningMessage({
+							message: '请至少选择一行需要删除的数据'
+						});
+					}
+				},
+				submitClick: function() {
+					var self = this;
+					if (self.$refs.grid.isDataChanged()) {
+						self.getRef('grid').validate().then(function() {
+							var changeData = self.$refs.grid.getChangedData();
+							console.log(changeData);
+							self.updatePersons.retrieve(changeData);
+						}, function() {});
+					} else {
+						componentutils.showWarningMessage({
+							message: '数据未更改，没有数据需要提交'
+						});
+					}
+				},
+				fullValidateClick: function() {
+					var self = this;
+					self.getRef('grid').fullValidate().then(function() {
+						componentutils.showSuccessMessage({
+							message: '校验通过'
+						});
+					}).catch(function(errMap) {
+						var msgList = [];
+						VueUtil.loop(Object.keys(errMap), function(prop) {
+							VueUtil.loop(errMap[prop], function(err) {
+								msgList.push('第' + (err.rowIndex + 1) + '行校验错误：' + err.rule.message);
+							});
+						});
+						componentutils.showErrorMessage({
+							message: self.$createElement('pre', {}, VueUtil.join(msgList, '\n')),
+							position: "top-right",
+							duration: 15000,
+							showClose: true
+						});
+					});
+				},
+				dsGridParameter: function() {
+					return this.getSearchParams();
+				},
+				updatePersonsParameter: function(tempParams) {
+					debugger; //为了演示DataSource传参
+					return tempParams;
+				},
+				updatePersonsSuccess: function(res) {
+					var self = this;
+					componentutils.showWarningMessage({
+						message: '提交成功',
+						onClose: function() {
+							self.dsGrid.retrieve();
+						}
+					});
+				}
+			}
+		};
+		pageMixinMap.manualSeperate = {
+			data: function() {
+				return {
+					gridHeight: 0
+				};
+			},
+			created: function() {
+				var self = this;
+				window.onresize = function() {
+					self.autoSetGridHeight();
+				};
+				window.grid = this;
+			},
+			mounted: function() {
+				this.autoSetGridHeight();
+			},
+			methods: {
+				getSearchParams: function() {
+					var searchConditions = this.form || {};
+					return searchConditions;
+				},
+				autoSetGridHeight: function() {
+					var winHeight = 0;
+					if (window.innerHeight) {
+						winHeight = window.innerHeight;
+					} else if ((document.body) && (document.body.offsetHeight)) {
+						winHeight = document.body.offsetHeight;
+					}
+					if (document.documentElement && document.documentElement.offsetHeight) {
+						winHeight = document.documentElement.offsetHeight;
+					}
+					var panelHeight = this.getRef("conditionPanel").$el.offsetHeight;
+					var frameHeight = 0; //Compatible height calculation of page and page template
+					if (document.getElementsByClassName('navbar').length > 0) {
+						frameHeight += document.getElementsByClassName('navbar')[0].offsetHeight;
+					}
+					if (document.getElementsByClassName('tags-view-container').length > 0) {
+						frameHeight += document.getElementsByClassName('tags-view-container')[0].offsetHeight;
+					}
+					this.gridHeight = winHeight - panelHeight - frameHeight - 16;
+				}
+			}
+		};
+		pageMixinMap.auto = {
+			data: function() {
+				return {
+					pageLoading: false,
+					form: {
+						name: "",
+						sexValue: "",
+						address: ""
+					},
+					sexOpts: [{
+						value: "",
+						label: "全部"
+					}, {
+						value: "0",
+						label: "女"
+					}, {
+						value: "1",
+						label: "男"
+					}],
+					gridRules: {
+						personNo: [{
+							required: true,
+							message: '请输入编号'
+						}, {
+							pattern: /^[\w\W]{5}$/,
+							message: '编号长度为5位'
+						}, {
+							pattern: /^([a-zA-Z0-9\.]+)$/,
+							trigger: 'change',
+							message: '编号仅支持英文与数字'
+						}],
+						name: [{
+							required: true,
+							message: '请输入姓名'
+						}],
+						age: [{
+							required: true,
+							message: '请输入年龄'
+						}, {
+							min: 18,
+							max: 100,
+							type: 'number',
+							message: '年龄范围为18岁到100岁'
+						}],
+						sexValue: [{
+							required: true,
+							message: '请选择性别'
+						}],
+						department: [{
+							required: true,
+							message: '请选择部门'
+						}],
+						date: [{
+							required: true,
+							message: '请输入入社日期'
+						}, {
+							validator: function(rule, value, callback) {
+								if (!value) {
+									callback();
+								}
+								var date = VueUtil.parseDate(value, 'yyyy-MM-dd');
+								if (date.getTime() < VueUtil.parseDate('20000101', 'yyyyMMdd')) {
+									callback(new Error("入社日期要在2000年1月1日以后"));
+								} else {
+									callback();
+								}
+							},
+							trigger: "change"
+						}],
+						email: [{
+							pattern: /([\w_-]+@[\w_-]+\.[\w._-]+)$/,
+							trigger: 'change',
+							message: '非法的邮件地址!'
+						}],
+						zip: [{
+							pattern: /^\d{6}$/,
+							trigger: 'change',
+							message: '邮政编码为6位纯数字'
+						}]
+					},
+					gridAgeCleave: {
+						numeralDecimalScale: '0'
+					},
+					dsGrid: this.getDataSource({
+						url: "/person/retrievePersons.json",
+						type: "POST",
+						parameter: this.dsGridParameter,
+						emulateJSON: false
+					}),
+					departOptions: this.getDataSource({
+						type: "POST",
+						localData: [{
+							value: 'M',
+							label: '管理部'
+						}, {
+							value: 'D',
+							label: '开发部'
+						}, {
+							value: 'B',
+							label: '业务部'
+						}]
+					}),
+					sexOptions: this.getDataSource({
+						type: "POST",
+						localData: [{
+							value: '0',
+							label: '女'
+						}, {
+							value: '1',
+							label: '男'
+						}]
+					}),
+					updatePersons: this.getDataSource({
+						type: "POST",
+						parameter: this.updatePersonsParameter,
+						success: this.updatePersonsSuccess
+					})
+				};
+			},
+			mounted: function() {
+				this.dsGrid.retrieve();
+				this.departOptions.retrieve();
+				this.sexOptions.retrieve();
+			}
+		};
+		pageMixins = getPageMixins(pageMixinMap);
+	})();
+	module.exports = {
+		mixins: pageMixins,
+		name: "editableTabular"
+	};
+</script>

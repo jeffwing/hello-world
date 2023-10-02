@@ -1,0 +1,170 @@
+<style type="text/css" scoped>
+</style>
+<template>
+	<div v-cloak class="page" v-loading="pageLoading" :vue-loading-text="messageutil.get('page.loading.text')">
+		<escort-form ref="form" id="form" :model="form">
+			<escort-xgrid-gantt :height="gridHeight" empty-text="无数据" cls="ff" id="vueXgridGantt_bFe6Y" ref="vueXgridGantt_bFe6Y" :data="vueDataSet_9u1af.data">
+				<escort-gantt-column prop="rowIndex" fixed="left" header-align="center" text="rowIndex" width="100px" id="copy0_copy0_vueGanttColumn_68pgS" ref="copy0_copy0_vueGanttColumn_68pgS">
+				</escort-gantt-column>
+				<escort-gantt-column prop="age" align="center" fixed="left" text="Age" header-align="center" :tree-node="true" width="100px" id="copy0_vueGanttColumn_5Lgse" ref="copy0_vueGanttColumn_5Lgse">
+				</escort-gantt-column>
+				<escort-gantt-column prop="name" fixed="left" header-align="center" text="Name" width="100px" id="copy0_vueGanttColumn_68pgS" ref="copy0_vueGanttColumn_68pgS">
+				</escort-gantt-column>
+				<escort-gantt-task-column type="md" header-align="center" date-column-width="40px" :column-size="1" id="vueGanttTaskColumn_IsbSO" ref="vueGanttTaskColumn_IsbSO">
+					<template v-slot:taskTitle="scope">
+						<ul class="expand-form" style="width: 300px;">
+							<li>
+								<span class="title">Title：</span>
+								<span class="content">
+									{{scope.task.title}}
+								</span>
+							</li>
+							<li>
+								<vue-button>abc</vue-button>
+								<span class="title">start：</span>
+								<span class="content">
+									{{scope.task.start}}
+								</span>
+							</li>
+							<li>
+								<span class="title">end：</span>
+								<span class="content">
+									{{scope.task.end}}
+								</span>
+							</li>
+						</ul>
+					</template>
+				</escort-gantt-task-column>
+			</escort-xgrid-gantt>
+		</escort-form>
+	</div>
+</template>
+<script type="text/javascript">
+	var pageMixins;
+	(function() {
+		var pageMixinMap = {};
+		pageMixinMap.event = {
+			methods: {
+				vueDataSet_9u1afError: function(res) {
+					var self = this;
+					console.log("error");
+					var data = [{
+						"id": 0,
+						"name": "name0",
+						"age": 11,
+						"tasks": [{
+							"title": "测试0-0-0",
+							"type": 0,
+							"start": new Date("2023-02-25T16:00:00.000Z"),
+							"end": new Date("2023-02-28T16:00:00.000Z"),
+							"row": 2
+						}, {
+							"title": "测试0-0-3",
+							"type": 0,
+							"start": new Date("2023-03-04T16:00:00.000Z"),
+							"end": new Date("2023-03-05T16:59:59.000Z"),
+							"row": 3
+						}, {
+							"title": "测试0-0-2",
+							"type": 2,
+							"start": new Date("2023-03-05T03:01:00.000Z"),
+							"end": new Date("2023-03-10T07:39:00.000Z"),
+							"row": 4
+						}, {
+							"title": "测试0-0-1",
+							"type": 3,
+							"start": new Date("2023-03-20T03:01:00.000Z"),
+							"end": new Date("2023-03-30T07:39:00.000Z"),
+							"row": 1
+						}]
+					}, {
+						"id": 1,
+						"parentId": 0,
+						"name": "name1",
+						"age": 67,
+						"tasks": [{
+							"title": "测试1-0-0",
+							"type": 1,
+							"start": new Date("2023-02-27T04:01:00.000Z"),
+							"end": new Date("2023-02-28T07:39:00.000Z"),
+							"row": 1
+						}]
+					}];
+					var count = this.taskCount;
+					var rowCount = this.ganttRowCount;
+					for (var rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+						for (var i = 0; i < count; i++) {
+							var day = self.getRandom(30);
+							var taskType = self.getRandom(6);
+							var mounth = ['', '03', '04'][self.getRandom(2)];
+							var dayStr = day >= 10 ? day : "0" + day;
+							var nextDayStr = (day + 1) >= 10 ? (day + 1) : "0" + (day + 1);
+							var starts = "2023-" + mounth + "-" + dayStr + "T04:01:00.000Z";
+							var ends = "2023-" + mounth + "-" + nextDayStr + "T04:01:00.000Z";
+							var parentIndex = Math.round(Math.random() * rowCount + 1);
+							if (!data[parentIndex]) {
+								data[parentIndex] = {
+									"id": parentIndex + '_' + i,
+									"parentId": parentIndex,
+									"name": "name_" + i,
+									"age": 67,
+									"rowIndex": rowIndex,
+									"tasks": []
+								};
+							}
+							var title = "测试" + parentIndex + "_0_" + i;
+							data[parentIndex].tasks.push({
+								"title": title,
+								"type": 1,
+								"start": new Date(starts),
+								"end": new Date(ends),
+								"row": taskType
+							});
+						}
+					}
+					this.vueDataSet_9u1af.data = data;
+				}
+			}
+		};
+		pageMixinMap.manualSeperate = {
+			data: function() {
+				return {
+					//每行任务数
+					taskCount: 50,
+					//任务行数
+					ganttRowCount: 500,
+					gridHeight: 400
+				};
+			},
+			mounted: function() {
+				window.page = this;
+			},
+			methods: {
+				getRandom: function(max) {
+					return Math.round(Math.random() * (max - 1) + 1);
+				}
+			}
+		};
+		pageMixinMap.auto = {
+			data: function() {
+				return {
+					pageLoading: false,
+					form: {},
+					vueDataSet_9u1af: this.getDataSource({
+						url: "/getGanttData.json",
+						type: "POST",
+						error: this.vueDataSet_9u1afError
+					})
+				};
+			},
+			mounted: function() {
+				this.vueDataSet_9u1af.retrieve();
+			}
+		};
+		pageMixins = getPageMixins(pageMixinMap);
+	})();
+	module.exports = {
+		mixins: pageMixins,
+		name: "ganttSample"
+	};
+</script>
