@@ -1,0 +1,30 @@
+<style type="text/css" scoped>
+</style>
+<template>
+	<div v-cloak class="page" v-loading="pageLoading" :vue-loading-text="messageutil.get('page.loading.text')">
+		<escort-form ref="form" id="form" :model="form">
+			<escort-input id="vueInputBox_TgCWq" ref="vueInputBox_TgCWq" v-model="form.datafieldvueInputBox_TgCWq" prop="datafieldvueInputBox_TgCWq"></escort-input>
+		</escort-form>
+	</div>
+</template>
+<script type="text/javascript">
+	var pageMixins;
+	(function() {
+		var pageMixinMap = {};
+		pageMixinMap.auto = {
+			data: function() {
+				return {
+					pageLoading: false,
+					form: {
+						datafieldvueInputBox_TgCWq: ""
+					}
+				};
+			}
+		};
+		pageMixins = getPageMixins(pageMixinMap);
+	})();
+	module.exports = {
+		mixins: pageMixins,
+		name: "demo10-02"
+	};
+</script>
