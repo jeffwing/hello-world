@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+		
+      	      	<script>
+			/* 全局变量 contextPath @url(本地路径, a1-escort预览路径) */
+			var contextPath = '..';
+			/* escortContextPath @url(本地, a1-escort预览) 用来拼接根路径相识页面、静态资源、路由文件的路径*/
+      		var resourceContextPath = '../../resources/static/viy-menu';
+            var escortContextPath = '..';
+			var clientLang = "";
+			clientLang = clientLang.replace(new RegExp("_", "gm"), "-");
+		</script>
+		<!-- VIY -->
+		<link rel="stylesheet" href="/vhgh20240315/resources/static/css/component/component.min.css" />
+        <link rel="stylesheet" href="/vhgh20240315/resources/static/css/escort/escort-ui-vue.min.css">
+
+		<!-- VIY MENU -->
+		<link rel="stylesheet" href="/vhgh20240315/resources/static/viy-menu/dist/viy-menu.min.css" />
+
+		<!-- VIY -->
+		<script type="text/javascript" src="/vhgh20240315/resources/static/js/vue/vue-all.min.js"></script>
+		<script type="text/javascript" src="/vhgh20240315/resources/static/js/common/messageutil.js"></script>
+		<script type="text/javascript" src="/vhgh20240315/resources/static/js/vue/component/vue-component-all.min.js"></script>
+		<script type="text/javascript" src="/vhgh20240315/resources/static/js/common/componentutils.vue.min.js"></script>
+        <!-- xgrid支持导入导出xlsx格式文件 -->
+        <script type="text/javascript" src="/vhgh20240315/resources/static/js/common/excel.min.js"></script>
+        <!-- echarts控件用 -->  
+        <script type="text/javascript" src="/vhgh20240315/resources/static/js/common/echarts.min.js"></script>
+
+        <!-- MOCK -->
+        <script type="text/javascript" src="/vhgh20240315/resources/static/js/mock/mock.js"></script>
+        <script type="text/javascript" src="/vhgh20240315/resources/static/js/mock/ajaxhook.min.js"></script>
+        <script type="text/javascript" src="/vhgh20240315/resources/mock/4028b8818e3fdd42018e40c5903603a6/mockcfg.js?t=0530298021"></script>
+            
+    	<!-- Query Profile -->
+        <link rel="stylesheet" href="/vhgh20240315/resources/static/queryProfile/resources/css/query-profile.css" />
+        <script type="text/javascript" src="/vhgh20240315/resources/static/queryProfile/resources/js/query-profile.js"></script>
+
+		<script>
+			messageutil.clearCache();
+			messageutil.init({
+				path: '../..' + "/js/",
+				file: 'locale_i18n_.json',
+                defaultFile: "locale_i18n.json",
+				cache: false,
+				async: false,
+                lang: ""
+			});
+          
+          	Vue.http.interceptors.push(function(request, next) {
+          	
+              	if(this instanceof Vue && request.lockScreen == "true"){
+                   this.__pageLoadingCount?(this.__pageLoadingCount++) : (this.__pageLoadingCount = 1);
+                   this.__autoLoading !== false && (this.pageLoading = true);
+                }
+              
+              	/* START 数据资源中心向ESCORT后台请求资源时用 */
+                /* var csrfHeaderObj = document.querySelector("meta[name='_csrf_header']");
+                var csrfObj = document.querySelector("meta[name='_csrf']");
+                if (csrfHeaderObj && csrfObj) {
+                    var header = csrfHeaderObj.getAttribute('content');
+                    var token = csrfObj.getAttribute('content');
+                    request.headers.set(header, token);
+                }
+              
+              	request.params.projectId = '4028b8818e3fdd42018e40c5903603a6';*/
+              	/* END 数据资源中心向ESCORT后台请求资源时用 */
+              
+                next(function(response){
+                  	
+                  	if(this instanceof Vue && request.lockScreen == "true"){
+                   		this.__pageLoadingCount--;
+                      	this.__autoLoading !== false && this.__pageLoadingCount === 0 && (this.pageLoading = false);
+                	}  
+                  
+                    return response;
+                });
+            });
+		</script>
+        <script src=".."></script>
+            
+		<style>
+
+		</style>
+	</head>
+
+	<body>
+		<div id="main" v-cloak>
+			<keep-alive>
+				<router-view></router-view>
+			</keep-alive>
+		</div>
+    <!-- VIY MENU -->
+    <!-- pj-config.js 必须在 viy-menu.js 之前引用，否则在 viy-menu.js 中调用如 generateTitle 等方法时，只能调到默认的方法，而不是pj-config.js中定义的自定义方法 -->
+    <script type="text/javascript" src="/vhgh20240315/resources/static/ignore/viy-menu/pj-config.js"></script>
+    <script type="text/javascript" src="/vhgh20240315/resources/static/viy-menu/dist/viy-menu.min.js"></script>
+    <script type="text/javascript" src="/vhgh20240315/resources/static/js/pj/pj-locale.js"></script>
+	<script type="text/javascript">
+		//主页面处理
+        (function(context, definition) {
+            'use strict';
+            definition();
+        })(this, function() {
+            'use strict';
+            Vue.prototype.messageutil = messageutil;
+            Vue.prototype.escortContextPath = escortContextPath;
+            var app = new Vue({
+                router: router
+            }).$mount("#main");
+        })
+	</script>
+	</body>
+</html>
